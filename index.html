@@ -115,7 +115,8 @@ function setTipo(t){tipo=t;document.getElementById("btn-afirm").classList.toggle
 function nueva(){document.getElementById("resultado").style.display="none";}
 const ES_VERBO={ben:"soy",sen:"eres",o:"es",biz:"somos",siz:"sois/es",onlar:"son"};
 const ES_NEG={ben:"no soy",sen:"no eres",o:"no es",biz:"no somos",siz:"no sois/es",onlar:"no son"};
-const ES_SUJ={ben:"Yo",sen:"Tú",o:"Él/Ella",biz:"Nosotros",siz:"Usted/Vosotros",onlar:"Ellos/Ellas"};
+const ES_SUJ={ben:"Ben",sen:"Sen",o:"O",biz:"Biz",siz:"Siz",onlar:"Onlar"};
+const ES_SUJ_TRAD={ben:"Yo",sen:"Tú",o:"Él/Ella",biz:"Nosotros",siz:"Usted/Vosotros",onlar:"Ellos/Ellas"};
 const PER_LABEL={ben:"Ben (yo)",sen:"Sen (tú)",o:"O (él/ella)",biz:"Biz (nosotros)",siz:"Siz",onlar:"Onlar"};
 
 function generar(){
@@ -132,6 +133,10 @@ function generar(){
   
   let notas = [];
   
+  // Pronombre en turco
+  const pronombre = ES_SUJ[persona];
+  const pronombreTrad = ES_SUJ_TRAD[persona];
+  
   // --- CASO ESPECIAL: Dos adjetivos + sustantivo (frase con contraste) ---
   if(adjs.length === 2 && sv) {
     const adj1 = adjs[0];
@@ -140,23 +145,25 @@ function generar(){
     const lbl2 = ADJETIVOS.find(([v])=>v===adj2)?.[1]||adj2;
     const sustLbl = PROFESIONES.find(([v])=>v===sv)?.[1]||sv;
     
-    // Parte 1: [adj1] + bir + [sustantivo] + imek(afirm)
+    // Aplicar imek al sustantivo (sin repetirlo en la parte nominal)
     const res1 = imek(sv, persona);
-    const parte1 = adj1 + " bir " + sv;
-    const forma1 = parte1 + " " + res1.forma;
+    
+    // Parte 1: [pronombre] + [adj1] + bir + [sustantivo con imek]
+    // CORRECCIÓN: No repetir el sustantivo, solo el adjetivo + bir + sustantivo+imek
+    const parte1 = pronombre + " " + adj1 + " bir " + res1.forma;
     
     // Parte 2: ama + [adj2] + değil + imek(neg)
     const neg = imekNeg(persona);
     const parte2 = "ama " + adj2 + " değil" + neg.sufijo;
     
     // Frase completa
-    const fraseCompleta = forma1 + " " + parte2;
+    const fraseCompleta = parte1 + " " + parte2;
     
     // Análisis morfológico
+    piezas.push({token:pronombre, explicacion:`pronombre personal (${pronombreTrad})`, regla:"sujeto"});
     piezas.push({token:adj1, explicacion:`${lbl1} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
     piezas.push({token:"bir", explicacion:"artículo indefinido", regla:"se usa con sustantivos cuando hay adjetivo"});
-    piezas.push({token:sv, explicacion:`${sustLbl} (sustantivo)`, regla:"raíz"});
-    piezas.push({token:res1.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:res1.regla});
+    piezas.push({token:res1.forma, explicacion:`${sustLbl} + sufijo İMEK para ${PER_LABEL[persona]}`, regla:res1.regla});
     piezas.push({token:"ama", explicacion:"pero", regla:"conjunción adversativa"});
     piezas.push({token:adj2, explicacion:`${lbl2} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
     piezas.push({token:"değil", explicacion:"negación (no)", regla:"invariable"});
@@ -169,7 +176,7 @@ function generar(){
     if(NO_MUTAR.has(sv)) notas.push(`"${sv}" es un préstamo: la consonante final NO muta.`);
     
     // Traducción
-    const esTraduccion = `"Yo soy ${lbl1} ${sustLbl} pero no soy ${lbl2}"`;
+    const esTraduccion = `"${pronombreTrad} soy ${lbl1} ${sustLbl} pero no soy ${lbl2}"`;
     
     // Mostrar resultados
     document.getElementById("frase-tr").textContent = fraseCompleta;
@@ -250,22 +257,26 @@ function generar(){
   
   if(tipo === "afirm") {
     const res = imek(palabraImek, persona);
-    const formaFinal = grupoStr + " " + res.forma;
+    const formaFinal = pronombre + " " + grupoStr + " " + res.forma;
     
+    // Añadir pronombre al análisis
+    piezas.unshift({token:pronombre, explicacion:`pronombre personal (${pronombreTrad})`, regla:"sujeto"});
     piezas.push({token:res.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:res.regla});
     if(res.muto) notas.push(`"${palabraImek}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);
     
-    const esTraduccion = `"${ES_SUJ[persona]} ${ES_VERBO[persona]} ${grupoEsStr}"`;
+    const esTraduccion = `"${pronombreTrad} ${ES_VERBO[persona]} ${grupoEsStr}"`;
     document.getElementById("frase-tr").textContent = formaFinal;
     document.getElementById("frase-es").textContent = esTraduccion;
   } else {
     const neg = imekNeg(persona);
-    const formaFinal = grupoStr + " değil" + neg.sufijo;
+    const formaFinal = pronombre + " " + grupoStr + " değil" + neg.sufijo;
     
+    // Añadir pronombre al análisis
+    piezas.unshift({token:pronombre, explicacion:`pronombre personal (${pronombreTrad})`, regla:"sujeto"});
     piezas.push({token:"değil", explicacion:"negación (no)", regla:"invariable"});
     piezas.push({token:neg.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:"armonía con 'i' de değil"});
     
-    const esTraduccion = `"${ES_SUJ[persona]} ${ES_NEG[persona]} ${grupoEsStr}"`;
+    const esTraduccion = `"${pronombreTrad} ${ES_NEG[persona]} ${grupoEsStr}"`;
     document.getElementById("frase-tr").textContent = formaFinal;
     document.getElementById("frase-es").textContent = esTraduccion;
   }
