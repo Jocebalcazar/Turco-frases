@@ -130,119 +130,53 @@ function generar(){
   const adjs=[a1,a2].filter(Boolean);
   const piezas=[]; // Para análisis morfológico
   
-  // --- CONSTRUCCIÓN DE LA FRASE ---
-  let fraseParts = [];
-  let esPartes = [];
   let notas = [];
   
-  // PASO 1: Construir el grupo nominal (adjetivos + sustantivo)
-  let grupoNominal = [];
-  let grupoNominalEs = [];
-  
-  // Añadir adjetivos al grupo nominal
-  adjs.forEach((adj, index) => {
-    const lbl = ADJETIVOS.find(([v])=>v===adj)?.[1]||adj;
-    grupoNominal.push(adj);
-    grupoNominalEs.push(lbl);
-    
-    // Para el análisis
-    piezas.push({token:adj, explicacion:`${lbl} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
-    
-    // Añadir "ve" entre adjetivos (si hay más de uno)
-    if(index < adjs.length - 1) {
-      grupoNominal.push("ve");
-      grupoNominalEs.push("y");
-      piezas.push({token:"ve", explicacion:"y", regla:"conjunción copulativa"});
-    }
-  });
-  
-  // Añadir sustantivo (si existe)
-  let sustantivoInfo = null;
-  if(sv) {
-    const lbl = PROFESIONES.find(([v])=>v===sv)?.[1]||sv;
-    sustantivoInfo = {token: sv, es: lbl};
-    
-    // Si hay adjetivos, añadir "bir" antes del sustantivo
-    if(adjs.length > 0) {
-      grupoNominal.push("bir");
-      grupoNominalEs.push("un/una");
-      piezas.push({token:"bir", explicacion:"artículo indefinido", regla:"se usa con sustantivos cuando hay adjetivo"});
-    }
-    
-    grupoNominal.push(sv);
-    grupoNominalEs.push(lbl);
-    piezas.push({token:sv, explicacion:`${lbl} (sustantivo/profesión)`, regla:"raíz"});
-  }
-  
-  // Si solo hay adjetivos sin sustantivo, el último adjetivo funciona como sustantivo
-  let palabraImek = sv || (adjs.length > 0 ? adjs[adjs.length-1] : null);
-  if(!palabraImek) return;
-  
-  // PASO 2: Determinar si la frase es afirmativa o negativa
-  const esAfirmativa = (tipo === "afirm");
-  
-  // PASO 3: Construir la frase según el tipo
-  let fraseCompleta = [];
-  let esTraduccion = "";
-  
-  // Caso especial: "ama" se maneja como parte de la frase
-  // El usuario quiere: "dikkatli bir aşçıyım ama beceriksiz değilim"
-  // Esto implica: adjetivo1 + bir + sustantivo + imek(afirm) + ama + adjetivo2 + değil + imek(neg)
+  // --- CASO ESPECIAL: Dos adjetivos + sustantivo (frase con contraste) ---
   if(adjs.length === 2 && sv) {
-    // Dos adjetivos + sustantivo - podemos crear una frase con contraste
     const adj1 = adjs[0];
     const adj2 = adjs[1];
     const lbl1 = ADJETIVOS.find(([v])=>v===adj1)?.[1]||adj1;
     const lbl2 = ADJETIVOS.find(([v])=>v===adj2)?.[1]||adj2;
+    const sustLbl = PROFESIONES.find(([v])=>v===sv)?.[1]||sv;
     
     // Parte 1: [adj1] + bir + [sustantivo] + imek(afirm)
-    const parte1 = [];
-    parte1.push(adj1);
-    const esParte1 = [lbl1];
-    parte1.push("bir");
-    esParte1.push("un/una");
-    const sustLbl = PROFESIONES.find(([v])=>v===sv)?.[1]||sv;
-    parte1.push(sv);
-    esParte1.push(sustLbl);
-    
-    // Aplicar imek a la parte 1
     const res1 = imek(sv, persona);
-    const forma1 = parte1.join(" ") + " " + res1.forma;
+    const parte1 = adj1 + " bir " + sv;
+    const forma1 = parte1 + " " + res1.forma;
     
     // Parte 2: ama + [adj2] + değil + imek(neg)
-    const parte2 = [];
-    parte2.push("ama");
-    const esParte2 = ["pero"];
-    parte2.push(adj2);
-    esParte2.push(lbl2);
-    
-    // Para la negación, usamos değil + sufijo
     const neg = imekNeg(persona);
-    parte2.push("değil" + neg.sufijo);
-    esParte2.push("no soy");
+    const parte2 = "ama " + adj2 + " değil" + neg.sufijo;
     
-    fraseCompleta = [forma1, "ama", adj2 + " değil" + neg.sufijo];
-    // Para el análisis
-    piezas.push({token:"ama", explicacion:"pero", regla:"conjunción adversativa"});
-    // Añadir el sufijo de la parte 1
+    // Frase completa
+    const fraseCompleta = forma1 + " " + parte2;
+    
+    // Análisis morfológico
+    piezas.push({token:adj1, explicacion:`${lbl1} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
+    piezas.push({token:"bir", explicacion:"artículo indefinido", regla:"se usa con sustantivos cuando hay adjetivo"});
+    piezas.push({token:sv, explicacion:`${sustLbl} (sustantivo)`, regla:"raíz"});
     piezas.push({token:res1.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:res1.regla});
-    // Añadir değil y su sufijo
+    piezas.push({token:"ama", explicacion:"pero", regla:"conjunción adversativa"});
+    piezas.push({token:adj2, explicacion:`${lbl2} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
     piezas.push({token:"değil", explicacion:"negación (no)", regla:"invariable"});
     piezas.push({token:neg.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:"armonía con 'i' de değil"});
     
-    // Nota especial
+    // Notas
     notas.push(`Frase con contraste: se usa "ama" para conectar una afirmación y una negación.`);
     notas.push(`"bir" se usa entre el adjetivo y el sustantivo.`);
+    if(res1.muto) notas.push(`"${sv}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);
+    if(NO_MUTAR.has(sv)) notas.push(`"${sv}" es un préstamo: la consonante final NO muta.`);
     
     // Traducción
-    esTraduccion = `"Yo soy ${lbl1} ${sustLbl} pero no soy ${lbl2}"`;
+    const esTraduccion = `"Yo soy ${lbl1} ${sustLbl} pero no soy ${lbl2}"`;
     
-    // Mostrar la frase
-    document.getElementById("frase-tr").textContent = forma1 + " ama " + adj2 + " değil" + neg.sufijo;
+    // Mostrar resultados
+    document.getElementById("frase-tr").textContent = fraseCompleta;
     document.getElementById("frase-es").textContent = esTraduccion;
     
     // Transliteración
-    let translit = forma1 + " ama " + adj2 + " deghil" + neg.sufijo;
+    let translit = fraseCompleta;
     translit = translit.replace(/ğ/g, "gh");
     translit = translit.replace(/ş/g, "sh");
     translit = translit.replace(/ç/g, "ch");
@@ -261,43 +195,77 @@ function generar(){
       analDiv.appendChild(d);
     });
     
-    // Notas
     document.getElementById("nota-box").innerHTML=notas.length?`<div class="divider"></div><div class="nota">💡 ${notas.join(" ")}</div>`:"";
     document.getElementById("resultado").style.display="block";
     document.getElementById("resultado").scrollIntoView({behavior:"smooth"});
     return;
   }
   
-  // --- CASO NORMAL (sin contraste) ---
-  // Construir el grupo nominal
-  let grupoStr = grupoNominal.join(" ");
-  let grupoEsStr = grupoNominalEs.join(" ");
+  // --- CASO NORMAL (un adjetivo o solo sustantivo) ---
+  // Construir grupo nominal
+  let grupoNominal = [];
+  let grupoNominalEs = [];
+  let palabraImek = sv || (adjs.length > 0 ? adjs[adjs.length-1] : null);
   
-  // Aplicar imek
-  if(esAfirmativa) {
-    const res = imek(palabraImek, persona);
-    const formaFinal = grupoStr + " " + res.forma;
-    fraseCompleta = [formaFinal];
+  if(!palabraImek) return;
+  
+  // Añadir adjetivos
+  adjs.forEach((adj, index) => {
+    const lbl = ADJETIVOS.find(([v])=>v===adj)?.[1]||adj;
+    grupoNominal.push(adj);
+    grupoNominalEs.push(lbl);
+    piezas.push({token:adj, explicacion:`${lbl} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
     
-    // Para el análisis
-    piezas.push({token:res.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:res.regla});
-    if(res.muto) {
-      notas.push(`"${palabraImek}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);
+    if(index < adjs.length - 1) {
+      grupoNominal.push("ve");
+      grupoNominalEs.push("y");
+      piezas.push({token:"ve", explicacion:"y", regla:"conjunción copulativa"});
+    }
+  });
+  
+  // Añadir sustantivo (si existe)
+  if(sv) {
+    const sustLbl = PROFESIONES.find(([v])=>v===sv)?.[1]||sv;
+    
+    // Si hay adjetivos, añadir "bir"
+    if(adjs.length > 0) {
+      grupoNominal.push("bir");
+      grupoNominalEs.push("un/una");
+      piezas.push({token:"bir", explicacion:"artículo indefinido", regla:"se usa con sustantivos cuando hay adjetivo"});
     }
     
-    esTraduccion = `"${ES_SUJ[persona]} ${ES_VERBO[persona]} ${grupoEsStr}"`;
+    grupoNominal.push(sv);
+    grupoNominalEs.push(sustLbl);
+    piezas.push({token:sv, explicacion:`${sustLbl} (sustantivo)`, regla:"raíz"});
+  }
+  
+  // Si solo hay adjetivos (sin sustantivo), el último adjetivo funciona como sustantivo
+  if(!sv && adjs.length > 0) {
+    palabraImek = adjs[adjs.length-1];
+  }
+  
+  // Aplicar imek
+  const grupoStr = grupoNominal.join(" ");
+  const grupoEsStr = grupoNominalEs.join(" ");
+  
+  if(tipo === "afirm") {
+    const res = imek(palabraImek, persona);
+    const formaFinal = grupoStr + " " + res.forma;
+    
+    piezas.push({token:res.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:res.regla});
+    if(res.muto) notas.push(`"${palabraImek}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);
+    
+    const esTraduccion = `"${ES_SUJ[persona]} ${ES_VERBO[persona]} ${grupoEsStr}"`;
     document.getElementById("frase-tr").textContent = formaFinal;
     document.getElementById("frase-es").textContent = esTraduccion;
   } else {
-    // Negativo
     const neg = imekNeg(persona);
     const formaFinal = grupoStr + " değil" + neg.sufijo;
-    fraseCompleta = [formaFinal];
     
     piezas.push({token:"değil", explicacion:"negación (no)", regla:"invariable"});
     piezas.push({token:neg.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:"armonía con 'i' de değil"});
     
-    esTraduccion = `"${ES_SUJ[persona]} ${ES_NEG[persona]} ${grupoEsStr}"`;
+    const esTraduccion = `"${ES_SUJ[persona]} ${ES_NEG[persona]} ${grupoEsStr}"`;
     document.getElementById("frase-tr").textContent = formaFinal;
     document.getElementById("frase-es").textContent = esTraduccion;
   }
@@ -307,7 +275,8 @@ function generar(){
   if(NO_MUTAR.has(palabraImek)) notas.push(`"${palabraImek}" es un préstamo: la consonante final NO muta.`);
   
   // Transliteración
-  let translit = fraseCompleta.join(" ");
+  const fraseCompleta = document.getElementById("frase-tr").textContent;
+  let translit = fraseCompleta;
   translit = translit.replace(/ğ/g, "gh");
   translit = translit.replace(/ş/g, "sh");
   translit = translit.replace(/ç/g, "ch");
