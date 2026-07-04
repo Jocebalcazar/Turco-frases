@@ -1,192 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Türkçe — Generador de Frases</title>
-    <style>
-        /* (Mantén todos tus estilos existentes aquí, son correctos) */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background:#0f0f13; color:#f0ebe0; font-family:system-ui,-apple-system,sans-serif; min-height:100vh; padding:22px 16px 60px; }
-        header { text-align:center; margin-bottom:28px; }
-        .eyebrow { font-size:10px; letter-spacing:4px; color:#e63e3e; text-transform:uppercase; margin-bottom:6px; }
-        h1 { font-size:24px; font-weight:700; }
-        h1 span { color:#e63e3e; }
-        .subtitle { font-size:12px; color:#6b6b80; margin-top:5px; }
-        .card { background:#17171e; border:1px solid #2a2a38; border-radius:12px; padding:16px; margin-bottom:12px; }
-        .lbl { font-size:10px; letter-spacing:3px; color:#6b6b80; text-transform:uppercase; display:block; margin-bottom:8px; }
-        select { width:100%; background:#0f0f13; border:1px solid #2a2a38; border-radius:8px; color:#f0ebe0; font-family:inherit; font-size:15px; padding:11px 12px; outline:none; appearance:none; -webkit-appearance:none; cursor:pointer; margin-bottom:10px; }
-        select:focus { border-color:#e63e3e; }
-        .toggle-row { display:flex; gap:8px; margin-top:4px; }
-        .toggle-btn { flex:1; padding:10px; border-radius:8px; border:1px solid #2a2a38; background:#0f0f13; color:#6b6b80; font-family:inherit; font-size:13px; cursor:pointer; font-weight:500; }
-        .toggle-btn.active { background:rgba(230,62,62,0.15); border-color:#e63e3e; color:#f0ebe0; }
-        button#generar { width:100%; background:#e63e3e; border:none; border-radius:10px; color:#fff; font-family:inherit; font-size:16px; font-weight:700; padding:15px; cursor:pointer; margin-bottom:14px; }
-        #resultado { display:none; }
-        .frase-es { font-size:13px; color:#6b6b80; font-style:italic; margin-bottom:8px; }
-        .frase-tr { font-family:monospace; font-size:24px; font-weight:700; line-height:1.3; color:#f0ebe0; margin-bottom:5px; }
-        .translit { font-size:13px; color:#6b6b80; margin-bottom:14px; }
-        .divider { height:1px; background:#2a2a38; margin:14px 0; }
-        .sec-lbl { font-size:10px; letter-spacing:3px; color:#e63e3e; text-transform:uppercase; margin-bottom:12px; }
-        .pieza { display:flex; align-items:flex-start; gap:10px; margin-bottom:11px; }
-        .token { font-family:monospace; font-size:13px; font-weight:700; color:#3ecf8e; background:rgba(62,207,142,0.08); border-radius:6px; padding:3px 8px; white-space:nowrap; flex-shrink:0; margin-top:1px; }
-        .info { font-size:13px; color:#6b6b80; line-height:1.5; }
-        .info strong { color:#f0ebe0; font-weight:600; }
-        .tag { display:inline-block; background:#1e1e2e; border:1px solid #2a2a38; border-radius:4px; font-size:10px; padding:1px 6px; color:#e63e3e; font-family:monospace; margin-left:5px; vertical-align:middle; }
-        .nota { background:rgba(230,62,62,0.07); border-left:3px solid #7a1f1f; border-radius:0 6px 6px 0; padding:10px 14px; font-size:12px; color:#6b6b80; line-height:1.6; margin-top:4px; }
-        .btn-nueva { width:100%; background:transparent; border:1px solid #2a2a38; border-radius:10px; color:#6b6b80; font-family:inherit; font-size:14px; padding:11px; cursor:pointer; margin-top:12px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Türkçe — Generador de Frases</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background:#0f0f13; color:#f0ebe0; font-family:system-ui,-apple-system,sans-serif; min-height:100vh; padding:22px 16px 60px; }
+header { text-align:center; margin-bottom:28px; }
+.eyebrow { font-size:10px; letter-spacing:4px; color:#e63e3e; text-transform:uppercase; margin-bottom:6px; }
+h1 { font-size:24px; font-weight:700; }
+h1 span { color:#e63e3e; }
+.subtitle { font-size:12px; color:#6b6b80; margin-top:5px; }
+.card { background:#17171e; border:1px solid #2a2a38; border-radius:12px; padding:16px; margin-bottom:12px; }
+.lbl { font-size:10px; letter-spacing:3px; color:#6b6b80; text-transform:uppercase; display:block; margin-bottom:8px; }
+select { width:100%; background:#0f0f13; border:1px solid #2a2a38; border-radius:8px; color:#f0ebe0; font-family:inherit; font-size:15px; padding:11px 12px; outline:none; appearance:none; -webkit-appearance:none; cursor:pointer; margin-bottom:10px; }
+select:focus { border-color:#e63e3e; }
+.toggle-row { display:flex; gap:8px; margin-top:4px; }
+.toggle-btn { flex:1; padding:10px; border-radius:8px; border:1px solid #2a2a38; background:#0f0f13; color:#6b6b80; font-family:inherit; font-size:13px; cursor:pointer; font-weight:500; }
+.toggle-btn.active { background:rgba(230,62,62,0.15); border-color:#e63e3e; color:#f0ebe0; }
+button#generar { width:100%; background:#e63e3e; border:none; border-radius:10px; color:#fff; font-family:inherit; font-size:16px; font-weight:700; padding:15px; cursor:pointer; margin-bottom:14px; }
+#resultado { display:none; }
+.frase-es { font-size:13px; color:#6b6b80; font-style:italic; margin-bottom:8px; }
+.frase-tr { font-family:monospace; font-size:24px; font-weight:700; line-height:1.3; color:#f0ebe0; margin-bottom:5px; }
+.translit { font-size:13px; color:#6b6b80; margin-bottom:14px; }
+.divider { height:1px; background:#2a2a38; margin:14px 0; }
+.sec-lbl { font-size:10px; letter-spacing:3px; color:#e63e3e; text-transform:uppercase; margin-bottom:12px; }
+.pieza { display:flex; align-items:flex-start; gap:10px; margin-bottom:11px; }
+.token { font-family:monospace; font-size:13px; font-weight:700; color:#3ecf8e; background:rgba(62,207,142,0.08); border-radius:6px; padding:3px 8px; white-space:nowrap; flex-shrink:0; margin-top:1px; }
+.info { font-size:13px; color:#6b6b80; line-height:1.5; }
+.info strong { color:#f0ebe0; font-weight:600; }
+.tag { display:inline-block; background:#1e1e2e; border:1px solid #2a2a38; border-radius:4px; font-size:10px; padding:1px 6px; color:#e63e3e; font-family:monospace; margin-left:5px; vertical-align:middle; }
+.nota { background:rgba(230,62,62,0.07); border-left:3px solid #7a1f1f; border-radius:0 6px 6px 0; padding:10px 14px; font-size:12px; color:#6b6b80; line-height:1.6; margin-top:4px; }
+.btn-nueva { width:100%; background:transparent; border:1px solid #2a2a38; border-radius:10px; color:#6b6b80; font-family:inherit; font-size:14px; padding:11px; cursor:pointer; margin-top:12px; }
+</style>
 </head>
 <body>
 <header>
-    <div class="eyebrow">Türkçe Dersi</div>
-    <h1>Generador de <span>Frases</span></h1>
-    <p class="subtitle">Construye frases con İMEK · Análisis morfológico · Sin internet</p>
+  <div class="eyebrow">Türkçe Dersi</div>
+  <h1>Generador de <span>Frases</span></h1>
+  <p class="subtitle">Construye frases con İMEK · Análisis morfológico · Sin internet</p>
 </header>
 <div class="card">
-    <span class="lbl">Persona</span>
-    <select id="persona">
-        <option value="ben">Ben — Yo</option>
-        <option value="sen">Sen — Tú</option>
-        <option value="o">O — Él / Ella</option>
-        <option value="biz">Biz — Nosotros</option>
-        <option value="siz">Siz — Usted / Vosotros</option>
-        <option value="onlar">Onlar — Ellos / Ellas</option>
-    </select>
+  <span class="lbl">Persona</span>
+  <select id="persona">
+    <option value="ben">Ben — Yo</option>
+    <option value="sen">Sen — Tú</option>
+    <option value="o">O — Él / Ella</option>
+    <option value="biz">Biz — Nosotros</option>
+    <option value="siz">Siz — Usted / Vosotros</option>
+    <option value="onlar">Onlar — Ellos / Ellas</option>
+  </select>
 </div>
 <div class="card">
-    <span class="lbl">Adjetivo 1 (opcional)</span>
-    <select id="adj1"><option value="">— ninguno —</option></select>
-    <span class="lbl" style="margin-top:10px">Adjetivo 2 (opcional)</span>
-    <select id="adj2"><option value="">— ninguno —</option></select>
+  <span class="lbl">Adjetivo 1 (opcional)</span>
+  <select id="adj1"><option value="">— ninguno —</option></select>
+  <span class="lbl" style="margin-top:10px">Adjetivo 2 (opcional)</span>
+  <select id="adj2"><option value="">— ninguno —</option></select>
 </div>
 <div class="card">
-    <span class="lbl">Profesión o sustantivo (opcional)</span>
-    <select id="sust"><option value="">— ninguno —</option></select>
+  <span class="lbl">Profesión o sustantivo (opcional)</span>
+  <select id="sust"><option value="">— ninguno —</option></select>
 </div>
 <div class="card">
-    <span class="lbl">Conjunción (opcional)</span>
-    <select id="conjuncion">
-        <option value="">— ninguno —</option>
-        <option value="ama">ama — pero, no obstante</option>
-        <option value="ancak">ancak — pero, no obstante</option>
-        <option value="fakat">fakat — pero, no obstante</option>
-    </select>
-</div>
-<div class="card">
-    <span class="lbl">Adverbio demostrativo (opcional)</span>
-    <select id="adverbio">
-        <option value="">— ninguno —</option>
-        <option value="bu">bu — este/esta/esto</option>
-        <option value="şu">şu — ese/esa/eso</option>
-        <option value="o">o — aquel/aquella/aquello</option>
-        <option value="böyle">böyle — así, de esta manera</option>
-        <option value="şöyle">şöyle — así, de esa manera</option>
-        <option value="öyle">öyle — así, de aquella manera</option>
-    </select>
-</div>
-<div class="card">
-    <span class="lbl">Expresión de opinión (opcional)</span>
-    <select id="opinion">
-        <option value="">— ninguno —</option>
-        <option value="bence">bence — en mi opinión</option>
-        <option value="bizce">bizce — en nuestra opinión</option>
-        <option value="sence">sence — en tu opinión</option>
-        <option value="sizce">sizce — en vuestra/su opinión</option>
-        <option value="ona göre">ona göre — en su opinión (él/ella)</option>
-        <option value="onlara göre">onlara göre — en su opinión (ellos/ellas)</option>
-    </select>
-</div>
-<div class="card">
-    <span class="lbl">Tipo de frase</span>
-    <div class="toggle-row">
-        <button class="toggle-btn active" id="btn-afirm" onclick="setTipo('afirm')">✓ Afirmativo</button>
-        <button class="toggle-btn" id="btn-neg" onclick="setTipo('neg')">✗ Negativo (değil)</button>
-    </div>
+  <span class="lbl">Tipo de frase</span>
+  <div class="toggle-row">
+    <button class="toggle-btn active" id="btn-afirm" onclick="setTipo('afirm')">✓ Afirmativo</button>
+    <button class="toggle-btn" id="btn-neg" onclick="setTipo('neg')">✗ Negativo (değil)</button>
+  </div>
 </div>
 <button id="generar" onclick="generar()">Generar frase →</button>
 <div class="card" id="resultado">
-    <div class="sec-lbl">Traducción</div>
-    <div class="frase-es" id="frase-es"></div>
-    <div class="frase-tr" id="frase-tr"></div>
-    <div class="translit" id="translit"></div>
-    <div class="divider"></div>
-    <div class="sec-lbl">Análisis morfológico</div>
-    <div id="analisis"></div>
-    <div id="nota-box"></div>
-    <button class="btn-nueva" onclick="nueva()">← Nueva frase</button>
+  <div class="sec-lbl">Traducción</div>
+  <div class="frase-es" id="frase-es"></div>
+  <div class="frase-tr" id="frase-tr"></div>
+  <div class="translit" id="translit"></div>
+  <div class="divider"></div>
+  <div class="sec-lbl">Análisis morfológico</div>
+  <div id="analisis"></div>
+  <div id="nota-box"></div>
+  <button class="btn-nueva" onclick="nueva()">← Nueva frase</button>
 </div>
 <script>
-    // ================== DATOS ==================
-    // (Todos tus datos de vocabulario aquí. Asegúrate de que estén completos y sin errores de sintaxis)
-    const PROFESIONES = [["avukat","abogado/a"],["doktor","médico/a"], /* ... todos los demás ... */ ["tüp","tubo"]];
-    const ADJETIVOS = [["atak","audaz"],["çekingen","tímido/a"], /* ... todos los demás ... */ ["ebleh","necio/tonto"]];
-
-    // ================== FUNCIONES AUXILIARES ==================
-    // (Todas tus funciones de gramática turca: lastVowel, arm2, arm4, endsVowel, endsKetcap, mutarRaiz, imek, imekNeg)
-
-    // ================== INICIALIZACIÓN ==================
-    function poblar(id, lista) {
-        const sel = document.getElementById(id);
-        if (!sel) return;
-        // Limpiar opciones existentes (excepto la primera si es "-- ninguno --")
-        while (sel.options.length > 1) {
-            sel.remove(1);
-        }
-        lista.forEach(([v, l]) => {
-            const o = document.createElement("option");
-            o.value = v;
-            o.textContent = `${v} — ${l}`;
-            sel.appendChild(o);
-        });
-    }
-
-    // Llenar los selectores al cargar la página
-    document.addEventListener('DOMContentLoaded', function() {
-        poblar("adj1", ADJETIVOS);
-        poblar("adj2", ADJETIVOS);
-        poblar("sust", PROFESIONES);
-        console.log("Selectores poblados correctamente."); // Para depuración
-    });
-
-    // ================== VARIABLES GLOBALES Y FUNCIONES DE UI ==================
-    let tipo = "afirm";
-    function setTipo(t) {
-        tipo = t;
-        document.getElementById("btn-afirm").classList.toggle("active", t === "afirm");
-        document.getElementById("btn-neg").classList.toggle("active", t === "neg");
-    }
-    function nueva() {
-        document.getElementById("resultado").style.display = "none";
-    }
-
-    // ================== FUNCIÓN PRINCIPAL GENERAR ==================
-    function generar() {
-        // 1. Obtener valores de los selectores
-        const persona = document.getElementById("persona").value;
-        const a1 = document.getElementById("adj1").value;
-        const a2 = document.getElementById("adj2").value;
-        const sv = document.getElementById("sust").value;
-        const conj = document.getElementById("conjuncion").value;
-        const adv = document.getElementById("adverbio").value;
-        const opin = document.getElementById("opinion").value;
-
-        // 2. Validar que hay al menos un adjetivo o sustantivo
-        if (!a1 && !a2 && !sv) {
-            alert("Elige al menos un adjetivo o una profesión/sustantivo.");
-            return;
-        }
-
-        // 3. Lógica de generación de frases (copia tu código aquí)
-        // ... (Tu lógica existente, que ya funciona)
-        // Asegúrate de que todas las variables y funciones necesarias estén definidas.
-
-        // 4. Mostrar el resultado
-        document.getElementById("resultado").style.display = "block";
-        document.getElementById("resultado").scrollIntoView({ behavior: "smooth" });
-    }
-
-    // ================== (Opcional) Mensaje de depuración ==================
-    console.log("Código cargado. Versión 3.1");
-</script>
-</body>
-</html>
+const PROFESIONES=[["avukat","abogado/a"],["doktor","médico/a"],["öğretmen","profesor/a"],["öğrenci","estudiante"],["asker","soldado"],["aşçı","cocinero/a"],["bakkal","tendero/a"],["balıkçı","pescador/a"],["bankacı","banquero/a"],["berber","barbero"],["çiftçi","agricultor/a"],["çoban","pastor/a"],["elektrikçi","electricista"],["fırıncı","panadero/a"],["garson","camarero/a"],["gazeteci","periodista"],["gemici","marinero/a"],["hademe","conserje"],["hâkim","juez/a"],["hemşire","enfermero/a"],["hoca","maestro/a"],["işçi","obrero/a"],["kasap","carnicero/a"],["kuaför","peluquero/a"],["kuyumcu","joyero/a"],["manav","verdulero/a"],["marangoz","carpintero/a"],["müdür","director/a"],["oyuncu","actor/actriz"],["pilot","piloto/a"],["polis","policía"],["memur","funcionario/a"],["rehber","guía"],["ressam","pintor/a"],["sanatçı","artista"],["sekreter","secretario/a"],["şâir","poeta"],["tamirci","mecánico/a"],["teknisyen","técnico/a"],["tercüman","traductor/a"],["terzi","sastre/a"],["veteriner","veterinario/a"],["yazar","escritor/a"],["fıstıkçı","vendedor/a de pistachos"],["anne","madre"],["baba","padre"],["kardeş","hermano/a"],["arkadaş","amigo/a"]];
+const ADJETIVOS=[["atak","audaz"],["çekingen","tímido/a"],["becerikli","hábil"],["beceriksiz","torpe"],["çalışkan","trabajador/a"],["tembel","perezoso/a"],["dikkatli","prudente"],["dikkatsiz","imprudente"],["disiplinli","disciplinado/a"],["disiplinsiz","indisciplinado/a"],["güvenilir","confiable"],["güvenilmez","desconfiable"],["ikiyüzlü","hipócrita"],["samimi","sincero/a"],["kirli","sucio/a"],["temiz","limpio/a"],["özenli","cuidadoso/a"],["özensiz","descuidado/a"],["pasaklı","desaliñado/a"],["titiz","meticuloso/a"],["terbiyeli","educado/a"],["terbiyesiz","maleducado/a"],["anlayışlı","comprensivo/a"],["anlayışsız","incomprensivo/a"],["merhametli","compasivo/a"],["merhametsiz","despiadado/a"],["cömert","generoso/a"],["cimri","tacaño/a"],["kibirli","arrogante"],["mütevâzi","humilde"],["dürüst","honesto/a"],["sahtekar","estafador/a"],["cesur","valiente"],["korkak","cobarde"],["hızlı","rápido/a"],["yavaş","lento/a"],["yorgun","cansado/a"],["üzgün","triste"]];
+const VOWELS=new Set(["a","e","ı","i","o","ö","u","ü"]);
+const FRONT=new Set(["e","i","ö","ü"]);
+const KETCAP=new Set(["f","s","t","k","ç","ş","h","p"]);
+const MUTATION={p:"b",ç:"c",t:"d",k:"ğ"};
+const NO_MUTAR=new Set(["doktor","pilot","teknisyen","veteriner","sekreter","garson","kuaför","rehber","müdür","kasap"]);
+function lastVowel(w){for(let i=w.length-1;i>=0;i--)if(VOWELS.has(w[i]))return w[i];return"a";}
+function arm2(w){return FRONT.has(lastVowel(w))?"e":"a";}
+function arm4(w){const v=lastVowel(w);if(v==="a"||v==="ı")return"ı";if(v==="e"||v==="i")return"i";if(v==="o"||v==="u")return"u";return"ü";}
+function endsVowel(w){return VOWELS.has(w[w.length-1]);}
+function endsKetcap(w){return KETCAP.has(w[w.length-1]);}
+function mutarRaiz(w){if(NO_MUTAR.has(w))return w;const l=w[w.length-1];return MUTATION[l]?w.slice(0,-1)+MUTATION[l]:w;}
+function imek(word,persona){
+  const v4=arm4(word);const isVoc=endsVowel(word);const isKet=endsKetcap(word)&&!NO_MUTAR.has(word);
+  const base=isKet?mutarRaiz(word):word;
+  switch(persona){
+    case"ben":{const s=isVoc?`y${v4}m`:`${v4}m`;return{forma:base+s,sufijo:s,regla:isVoc?`vocal→+y+${v4}+m`:`cons→+${v4}+m`,muto:isKet};}
+    case"biz":{const s=isVoc?`y${v4}z`:`${v4}z`;return{forma:base+s,sufijo:s,regla:isVoc?`vocal→+y+${v4}+z`:`cons→+${v4}+z`,muto:isKet};}
+    case"sen":{const s=`s${v4}n`;return{forma:base+s,sufijo:s,regla:`+s+${v4}+n`,muto:isKet};}
+    case"siz":{const s=`s${v4}n${v4}z`;return{forma:base+s,sufijo:s,regla:`+s+${v4}+n+${v4}+z`,muto:isKet};}
+    case"o":{const s=isKet?`t${v4}r`:`d${v4}r`;return{forma:word+s,sufijo:s,regla:isKet?`sorda→+t+${v4}+r`:`+d+${v4}+r`,muto:false};}
+    case"onlar":{const o=imek(word,"o");const pl=arm2(word)==="e"?"ler":"lar";return{forma:o.forma+pl,sufijo:o.sufijo+pl,regla:`İMEK(O)+${pl}`,muto:false};}
+  }
+}
+function imekNeg(persona){const s={ben:"im",biz:"iz",sen:"sin",siz:"siniz",o:"dir",onlar:"dirler"};return{sufijo:s[persona]};}
+function poblar(id,lista){const sel=document.getElementById(id);lista.forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=`${v} — ${l}`;sel.appendChild(o);
