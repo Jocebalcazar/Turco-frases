@@ -3,463 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Türkçe Cümle — Generador de Frases</title>
+<title>Türkçe — Generador de Frases</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
-
-  :root {
-    --bg:        #0f0f13;
-    --surface:   #17171e;
-    --border:    #2a2a38;
-    --red:       #e63e3e;
-    --red-dim:   #7a1f1f;
-    --cream:     #f0ebe0;
-    --muted:     #6b6b80;
-    --success:   #3ecf8e;
-    --tag-bg:    #1e1e2e;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--cream);
-    font-family: 'IBM Plex Sans', sans-serif;
-    min-height: 100vh;
-    padding: 24px 16px 60px;
-  }
-
-  header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-
-  .logo {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--red);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  h1 {
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-  }
-
-  h1 span {
-    color: var(--red);
-  }
-
-  .subtitle {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 6px;
-    font-weight: 300;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--cream);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 16px;
-    padding: 14px;
-    resize: none;
-    min-height: 90px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  textarea:focus { border-color: var(--red); }
-  textarea::placeholder { color: var(--muted); }
-
-  .examples {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
-
-  .ex-chip {
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 12px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-  }
-
-  .ex-chip:active, .ex-chip:hover {
-    border-color: var(--red);
-    color: var(--cream);
-  }
-
-  button#traducir {
-    width: 100%;
-    background: var(--red);
-    border: none;
-    border-radius: 10px;
-    color: #fff;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 16px;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: opacity 0.2s;
-  }
-
-  button#traducir:disabled { opacity: 0.45; cursor: not-allowed; }
-  button#traducir:active { opacity: 0.85; }
-
-  #resultado { display: none; }
-
-  .turco-frase {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 22px;
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--cream);
-    margin-bottom: 6px;
-  }
-
-  .transliteracion {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 16px;
-    font-style: italic;
-  }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-  }
-
-  .seccion-titulo {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 12px;
-  }
-
-  .pieza {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .pieza-token {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--success);
-    background: rgba(62,207,142,0.08);
-    border-radius: 6px;
-    padding: 3px 8px;
-    white-space: nowrap;
-    margin-top: 1px;
-  }
-
-  .pieza-info {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  .pieza-info strong {
-    color: var(--cream);
-    font-weight: 600;
-  }
-
-  .regla-tag {
-    display: inline-block;
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 10px;
-    padding: 1px 6px;
-    color: var(--red);
-    font-family: 'IBM Plex Mono', monospace;
-    margin-left: 4px;
-    vertical-align: middle;
-  }
-
-  .nota {
-    background: rgba(230,62,62,0.07);
-    border-left: 3px solid var(--red-dim);
-    border-radius: 0 6px 6px 0;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-top: 4px;
-  }
-
-  .spinner {
-    display: none;
-    text-align: center;
-    padding: 20px;
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  .spinner.visible { display: block; }
-
-  .dot-anim::after {
-    content: '';
-    animation: dots 1.2s infinite;
-  }
-
-  @keyframes dots {
-    0%   { content: ''; }
-    33%  { content: '.'; }
-    66%  { content: '..'; }
-    100% { content: '...'; }
-  }
-
-  .error-msg {
-    background: rgba(230,62,62,0.1);
-    border: 1px solid var(--red-dim);
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 13px;
-    color: #f08080;
-    display: none;
-  }
-
-  .nueva-frase {
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--muted);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px;
-    padding: 12px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: all 0.2s;
-  }
-
-  .nueva-frase:hover { border-color: var(--red); color: var(--cream); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background:#0f0f13; color:#f0ebe0; font-family:system-ui,-apple-system,sans-serif; min-height:100vh; padding:22px 16px 60px; }
+header { text-align:center; margin-bottom:28px; }
+.eyebrow { font-size:10px; letter-spacing:4px; color:#e63e3e; text-transform:uppercase; margin-bottom:6px; }
+h1 { font-size:24px; font-weight:700; }
+h1 span { color:#e63e3e; }
+.subtitle { font-size:12px; color:#6b6b80; margin-top:5px; }
+.card { background:#17171e; border:1px solid #2a2a38; border-radius:12px; padding:16px; margin-bottom:12px; }
+.lbl { font-size:10px; letter-spacing:3px; color:#6b6b80; text-transform:uppercase; display:block; margin-bottom:8px; }
+select { width:100%; background:#0f0f13; border:1px solid #2a2a38; border-radius:8px; color:#f0ebe0; font-family:inherit; font-size:15px; padding:11px 12px; outline:none; appearance:none; -webkit-appearance:none; cursor:pointer; margin-bottom:10px; }
+select:focus { border-color:#e63e3e; }
+.toggle-row { display:flex; gap:8px; margin-top:4px; }
+.toggle-btn { flex:1; padding:10px; border-radius:8px; border:1px solid #2a2a38; background:#0f0f13; color:#6b6b80; font-family:inherit; font-size:13px; cursor:pointer; font-weight:500; }
+.toggle-btn.active { background:rgba(230,62,62,0.15); border-color:#e63e3e; color:#f0ebe0; }
+button#generar { width:100%; background:#e63e3e; border:none; border-radius:10px; color:#fff; font-family:inherit; font-size:16px; font-weight:700; padding:15px; cursor:pointer; margin-bottom:14px; }
+#resultado { display:none; }
+.frase-es { font-size:13px; color:#6b6b80; font-style:italic; margin-bottom:8px; }
+.frase-tr { font-family:monospace; font-size:24px; font-weight:700; line-height:1.3; color:#f0ebe0; margin-bottom:5px; }
+.translit { font-size:13px; color:#6b6b80; margin-bottom:14px; }
+.divider { height:1px; background:#2a2a38; margin:14px 0; }
+.sec-lbl { font-size:10px; letter-spacing:3px; color:#e63e3e; text-transform:uppercase; margin-bottom:12px; }
+.pieza { display:flex; align-items:flex-start; gap:10px; margin-bottom:11px; }
+.token { font-family:monospace; font-size:13px; font-weight:700; color:#3ecf8e; background:rgba(62,207,142,0.08); border-radius:6px; padding:3px 8px; white-space:nowrap; flex-shrink:0; margin-top:1px; }
+.info { font-size:13px; color:#6b6b80; line-height:1.5; }
+.info strong { color:#f0ebe0; font-weight:600; }
+.tag { display:inline-block; background:#1e1e2e; border:1px solid #2a2a38; border-radius:4px; font-size:10px; padding:1px 6px; color:#e63e3e; font-family:monospace; margin-left:5px; vertical-align:middle; }
+.nota { background:rgba(230,62,62,0.07); border-left:3px solid #7a1f1f; border-radius:0 6px 6px 0; padding:10px 14px; font-size:12px; color:#6b6b80; line-height:1.6; margin-top:4px; }
+.btn-nueva { width:100%; background:transparent; border:1px solid #2a2a38; border-radius:10px; color:#6b6b80; font-family:inherit; font-size:14px; padding:11px; cursor:pointer; margin-top:12px; }
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo">Türkçe Dersi</div>
+  <div class="eyebrow">Türkçe Dersi</div>
   <h1>Generador de <span>Frases</span></h1>
-  <p class="subtitle">Escribe en español · Recibe la traducción en turco con explicación</p>
+  <p class="subtitle">Construye frases con İMEK · Análisis morfológico · Sin internet</p>
 </header>
-
 <div class="card">
-  <label>Frase en español</label>
-  <textarea id="input" placeholder="Ej: Soy un abogado rápido pero no disciplinado"></textarea>
-  <div class="examples">
-    <div class="ex-chip" onclick="setEj(this)">Soy abogado</div>
-    <div class="ex-chip" onclick="setEj(this)">No soy perezosa</div>
-    <div class="ex-chip" onclick="setEj(this)">Él es médico honesto</div>
-    <div class="ex-chip" onclick="setEj(this)">Soy trabajadora pero no disciplinada</div>
-    <div class="ex-chip" onclick="setEj(this)">Eres valiente pero tacaño</div>
-    <div class="ex-chip" onclick="setEj(this)">Somos estudiantes</div>
+  <span class="lbl">Persona</span>
+  <select id="persona">
+    <option value="ben">Ben — Yo</option>
+    <option value="sen">Sen — Tú</option>
+    <option value="o">O — Él / Ella</option>
+    <option value="biz">Biz — Nosotros</option>
+    <option value="siz">Siz — Usted / Vosotros</option>
+    <option value="onlar">Onlar — Ellos / Ellas</option>
+  </select>
+</div>
+<div class="card">
+  <span class="lbl">Adjetivo 1 (opcional)</span>
+  <select id="adj1"><option value="">— ninguno —</option></select>
+  <span class="lbl" style="margin-top:10px">Adjetivo 2 (opcional)</span>
+  <select id="adj2"><option value="">— ninguno —</option></select>
+</div>
+<div class="card">
+  <span class="lbl">Profesión o sustantivo (opcional)</span>
+  <select id="sust"><option value="">— ninguno —</option></select>
+</div>
+<div class="card">
+  <span class="lbl">Tipo de frase</span>
+  <div class="toggle-row">
+    <button class="toggle-btn active" id="btn-afirm" onclick="setTipo('afirm')">✓ Afirmativo</button>
+    <button class="toggle-btn" id="btn-neg" onclick="setTipo('neg')">✗ Negativo (değil)</button>
   </div>
 </div>
-
-<button id="traducir" onclick="traducir()">Traducir al turco →</button>
-
-<div class="spinner" id="spinner">
-  <span class="dot-anim">Analizando y traduciendo</span>
-</div>
-
-<div class="error-msg" id="error"></div>
-
+<button id="generar" onclick="generar()">Generar frase →</button>
 <div class="card" id="resultado">
-  <div class="seccion-titulo">Traducción</div>
-  <div class="turco-frase" id="frase-turca"></div>
-  <div class="transliteracion" id="transliteracion"></div>
-
+  <div class="sec-lbl">Traducción</div>
+  <div class="frase-es" id="frase-es"></div>
+  <div class="frase-tr" id="frase-tr"></div>
+  <div class="translit" id="translit"></div>
   <div class="divider"></div>
-
-  <div class="seccion-titulo">Análisis morfológico</div>
+  <div class="sec-lbl">Análisis morfológico</div>
   <div id="analisis"></div>
-
   <div id="nota-box"></div>
-
-  <button class="nueva-frase" onclick="nuevaFrase()">← Nueva frase</button>
+  <button class="btn-nueva" onclick="nueva()">← Nueva frase</button>
 </div>
-
 <script>
-const SYSTEM = `Eres un asistente de turco para hispanohablantes, especializado en el nivel inicial de un curso universitario. 
-Tu tarea es traducir frases simples del español al turco aplicando EXACTAMENTE las reglas gramaticales del curso.
-
-REGLAS QUE DEBES APLICAR:
-
-1. ARMONÍA VOCÁLICA (2 vías y 4 vías):
-   - Armonía 2 vías: si la última vocal de la palabra es e/i/ö/ü → sufijo con "e"; si es a/ı/o/u → sufijo con "a"
-   - Armonía 4 vías: elige ı/i/u/ü según la última vocal de la raíz
-
-2. REGLA KETÇAP-FISTIKÇI ŞAHAP (mutación consonántica):
-   - Las consonantes f,s,t,k,ç,ş,h,p al final de una palabra pueden sonorizarse antes de un sufijo que empieza en vocal
-   - Mutación: p→b, ç→c, t→d, k→ğ
-   - PERO: esta mutación NO ocurre siempre; las palabras prestadas (doktor, pilot, etc.) generalmente NO mutan
-
-3. VERBO İMEK (ser/estar) — sufijos de persona:
-   - Ben (yo):   palabra + (y)⁴m   → si acaba en vocal: +y+arm4+m; si acaba en consonante: +arm4+m
-   - Biz (nos):  palabra + (y)⁴z   → misma lógica
-   - Sen (tú):   palabra + s⁴n     → siempre +s+arm4+n (nunca muta, s es el buffer)
-   - Siz (vos):  palabra + s⁴n⁴z
-   - O (él/ella): palabra + d⁴r    → +d+arm4+r (si acaba en sorda: +t+arm4+r)
-   - Onlar:      palabra + d⁴rl²r  → Onlar plural + İMEK de O
-
-4. NEGATIVO con değil:
-   - "No soy X" = X + değil + sufijo de persona de İMEK (usando vocales de "değil", que tiene "i")
-   - değilim / değiliz / değilsin / değilsiniz / değildir / değildirler
-
-5. CONJUNCIONES: ama/fakat/ancak = pero
-
-6. PLURAL: sustantivo + lar/ler (armonía 2 vías)
-
-7. ORDEN DE PALABRAS EN TURCO:
-   - En frases con İMEK: Sujeto + (adjetivos) + sustantivo/adjetivo predicado + İMEK
-   - Los adjetivos van ANTES del sustantivo que modifican
-   - "Soy abogado rápido" = "Hızlı bir avukattım" pero para İMEK nominal: "Ben hızlı bir avukadım"
-   - Para "Soy X pero no Y": X + İMEK + ama/fakat + değil + İMEK
-   - Ejemplo: "Soy trabajador pero no disciplinado" = "Çalışkanım ama disiplinli değilim"
-
-VOCABULARIO DEL CURSO (usa estas palabras, no otras):
-Profesiones: avukat(abogado), doktor(médico), öğretmen(profesor), öğrenci(estudiante), asker(soldado), aşçı(cocinero), bakkal(tendero), balıkçı(pescador), bankacı(banquero), berber(barbero), çiftçi(agricultor), çoban(pastor), elektrikçi(electricista), fırıncı(panadero), garson(camarero), gazeteci(periodista), gemici(marinero), hademe(conserje), hâkim(juez), hemşire(enfermero), hoca(maestro), işçi(obrero), kasap(carnicero), kuaför(peluquero), kuyumcu(joyero), manav(verdulero), marangoz(carpintero), müdür(director), oyuncu(actor), pilot(piloto), polis(policía), memur(funcionario), rehber(guía), ressam(pintor), sanatçı(artista), sekreter(secretario), şâir(poeta), tamirci(mecánico), teknisyen(técnico), tercüman(traductor), terzi(sastre), veteriner(veterinario), yazar(escritor), fıstıkçı(vendedor de pistachos)
-Adjetivos: atak(audaz), çekingen(tímido), becerikli(hábil), beceriksiz(torpe), çalışkan(trabajador), tembel(perezoso), dikkatli(prudente), dikkatsiz(imprudente), disiplinli(disciplinado), disiplinsiz(indisciplinado), güvenilir(confiable), ikiyüzlü(hipócrita), samimi(sincero), kirli(sucio), temiz(limpio), özenli(cuidadoso), özensiz(descuidado), titiz(meticuloso), terbiyeli(educado), terbiyesiz(maleducado), anlayışlı(comprensivo), merhametli(piadoso), merhametsiz(despiadado), cömert(generoso), cimri(tacaño), kibirli(arrogante), mütevâzi(humilde), dürüst(honesto), cesur(valiente), korkak(cobarde), hızlı(rápido), yavaş(lento), yorgun(cansado), üzgün(triste)
-Pronombres: ben(yo), sen(tú), o(él/ella), biz(nosotros), siz(vosotros/usted), onlar(ellos)
-bir = un/una (artículo indefinido)
-
-RESPONDE SIEMPRE EN ESTE FORMATO JSON EXACTO (sin markdown, sin texto extra):
-{
-  "frase_turca": "la frase completa en turco",
-  "transliteracion": "pronunciación aproximada para hispanohablantes",
-  "piezas": [
-    {
-      "token": "palabra en turco",
-      "explicacion": "qué es esta palabra/sufijo",
-      "regla": "regla gramatical aplicada (o null si es vocabulario base)"
-    }
-  ],
-  "nota": "observación útil sobre la frase o construcción (puede ser null)"
-}`;
-
-function setEj(el) {
-  document.getElementById('input').value = el.textContent;
-}
-
-function nuevaFrase() {
-  document.getElementById('resultado').style.display = 'none';
-  document.getElementById('input').value = '';
-  document.getElementById('input').focus();
-}
-
-async function traducir() {
-  const frase = document.getElementById('input').value.trim();
-  if (!frase) return;
-
-  const btn = document.getElementById('traducir');
-  const spinner = document.getElementById('spinner');
-  const errorDiv = document.getElementById('error');
-  const resultado = document.getElementById('resultado');
-
-  btn.disabled = true;
-  spinner.classList.add('visible');
-  errorDiv.style.display = 'none';
-  resultado.style.display = 'none';
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: SYSTEM,
-        messages: [{ role: 'user', content: frase }]
-      })
-    });
-
-    const data = await response.json();
-    const text = data.content.map(b => b.text || '').join('');
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-
-    // Frase principal
-    document.getElementById('frase-turca').textContent = parsed.frase_turca;
-    document.getElementById('transliteracion').textContent = parsed.transliteracion || '';
-
-    // Análisis morfológico
-    const analisisDiv = document.getElementById('analisis');
-    analisisDiv.innerHTML = '';
-    (parsed.piezas || []).forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'pieza';
-      div.innerHTML = `
-        <div class="pieza-token">${p.token}</div>
-        <div class="pieza-info">
-          <strong>${p.explicacion}</strong>
-          ${p.regla ? `<span class="regla-tag">${p.regla}</span>` : ''}
-        </div>`;
-      analisisDiv.appendChild(div);
-    });
-
-    // Nota
-    const notaBox = document.getElementById('nota-box');
-    if (parsed.nota) {
-      notaBox.innerHTML = `<div class="divider"></div><div class="nota">💡 ${parsed.nota}</div>`;
-    } else {
-      notaBox.innerHTML = '';
-    }
-
-    resultado.style.display = 'block';
-    resultado.scrollIntoView({ behavior: 'smooth' });
-
-  } catch (err) {
-    errorDiv.textContent = 'No se pudo traducir. Intenta de nuevo.';
-    errorDiv.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    spinner.classList.remove('visible');
+const PROFESIONES=[["avukat","abogado/a"],["doktor","médico/a"],["öğretmen","profesor/a"],["öğrenci","estudiante"],["asker","soldado"],["aşçı","cocinero/a"],["bakkal","tendero/a"],["balıkçı","pescador/a"],["bankacı","banquero/a"],["berber","barbero"],["çiftçi","agricultor/a"],["çoban","pastor/a"],["elektrikçi","electricista"],["fırıncı","panadero/a"],["garson","camarero/a"],["gazeteci","periodista"],["gemici","marinero/a"],["hademe","conserje"],["hâkim","juez/a"],["hemşire","enfermero/a"],["hoca","maestro/a"],["işçi","obrero/a"],["kasap","carnicero/a"],["kuaför","peluquero/a"],["kuyumcu","joyero/a"],["manav","verdulero/a"],["marangoz","carpintero/a"],["müdür","director/a"],["oyuncu","actor/actriz"],["pilot","piloto/a"],["polis","policía"],["memur","funcionario/a"],["rehber","guía"],["ressam","pintor/a"],["sanatçı","artista"],["sekreter","secretario/a"],["şâir","poeta"],["tamirci","mecánico/a"],["teknisyen","técnico/a"],["tercüman","traductor/a"],["terzi","sastre/a"],["veteriner","veterinario/a"],["yazar","escritor/a"],["fıstıkçı","vendedor/a de pistachos"],["anne","madre"],["baba","padre"],["kardeş","hermano/a"],["arkadaş","amigo/a"]];
+const ADJETIVOS=[["atak","audaz"],["çekingen","tímido/a"],["becerikli","hábil"],["beceriksiz","torpe"],["çalışkan","trabajador/a"],["tembel","perezoso/a"],["dikkatli","prudente"],["dikkatsiz","imprudente"],["disiplinli","disciplinado/a"],["disiplinsiz","indisciplinado/a"],["güvenilir","confiable"],["güvenilmez","desconfiable"],["ikiyüzlü","hipócrita"],["samimi","sincero/a"],["kirli","sucio/a"],["temiz","limpio/a"],["özenli","cuidadoso/a"],["özensiz","descuidado/a"],["pasaklı","desaliñado/a"],["titiz","meticuloso/a"],["terbiyeli","educado/a"],["terbiyesiz","maleducado/a"],["anlayışlı","comprensivo/a"],["anlayışsız","incomprensivo/a"],["merhametli","compasivo/a"],["merhametsiz","despiadado/a"],["cömert","generoso/a"],["cimri","tacaño/a"],["kibirli","arrogante"],["mütevâzi","humilde"],["dürüst","honesto/a"],["sahtekar","estafador/a"],["cesur","valiente"],["korkak","cobarde"],["hızlı","rápido/a"],["yavaş","lento/a"],["yorgun","cansado/a"],["üzgün","triste"]];
+const VOWELS=new Set(["a","e","ı","i","o","ö","u","ü"]);
+const FRONT=new Set(["e","i","ö","ü"]);
+const KETCAP=new Set(["f","s","t","k","ç","ş","h","p"]);
+const MUTATION={p:"b",ç:"c",t:"d",k:"ğ"};
+const NO_MUTAR=new Set(["doktor","pilot","teknisyen","veteriner","sekreter","garson","kuaför","rehber","müdür","kasap"]);
+function lastVowel(w){for(let i=w.length-1;i>=0;i--)if(VOWELS.has(w[i]))return w[i];return"a";}
+function arm2(w){return FRONT.has(lastVowel(w))?"e":"a";}
+function arm4(w){const v=lastVowel(w);if(v==="a"||v==="ı")return"ı";if(v==="e"||v==="i")return"i";if(v==="o"||v==="u")return"u";return"ü";}
+function endsVowel(w){return VOWELS.has(w[w.length-1]);}
+function endsKetcap(w){return KETCAP.has(w[w.length-1]);}
+function mutarRaiz(w){if(NO_MUTAR.has(w))return w;const l=w[w.length-1];return MUTATION[l]?w.slice(0,-1)+MUTATION[l]:w;}
+function imek(word,persona){
+  const v4=arm4(word);const isVoc=endsVowel(word);const isKet=endsKetcap(word)&&!NO_MUTAR.has(word);
+  const base=isKet?mutarRaiz(word):word;
+  switch(persona){
+    case"ben":{const s=isVoc?`y${v4}m`:`${v4}m`;return{forma:base+s,sufijo:s,regla:isVoc?`vocal→+y+${v4}+m`:`cons→+${v4}+m`,muto:isKet};}
+    case"biz":{const s=isVoc?`y${v4}z`:`${v4}z`;return{forma:base+s,sufijo:s,regla:isVoc?`vocal→+y+${v4}+z`:`cons→+${v4}+z`,muto:isKet};}
+    case"sen":{const s=`s${v4}n`;return{forma:base+s,sufijo:s,regla:`+s+${v4}+n`,muto:isKet};}
+    case"siz":{const s=`s${v4}n${v4}z`;return{forma:base+s,sufijo:s,regla:`+s+${v4}+n+${v4}+z`,muto:isKet};}
+    case"o":{const s=isKet?`t${v4}r`:`d${v4}r`;return{forma:word+s,sufijo:s,regla:isKet?`sorda→+t+${v4}+r`:`+d+${v4}+r`,muto:false};}
+    case"onlar":{const o=imek(word,"o");const pl=arm2(word)==="e"?"ler":"lar";return{forma:o.forma+pl,sufijo:o.sufijo+pl,regla:`İMEK(O)+${pl}`,muto:false};}
   }
 }
-
-// Enter para traducir
-document.getElementById('input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); traducir(); }
-});
+function imekNeg(persona){const s={ben:"im",biz:"iz",sen:"sin",siz:"siniz",o:"dir",onlar:"dirler"};return{sufijo:s[persona]};}
+function poblar(id,lista){const sel=document.getElementById(id);lista.forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=`${v} — ${l}`;sel.appendChild(o);});}
+poblar("adj1",ADJETIVOS);poblar("adj2",ADJETIVOS);poblar("sust",PROFESIONES);
+let tipo="afirm";
+function setTipo(t){tipo=t;document.getElementById("btn-afirm").classList.toggle("active",t==="afirm");document.getElementById("btn-neg").classList.toggle("active",t==="neg");}
+function nueva(){document.getElementById("resultado").style.display="none";}
+const ES_VERBO={ben:"soy",sen:"eres",o:"es",biz:"somos",siz:"sois/es",onlar:"son"};
+const ES_NEG={ben:"no soy",sen:"no eres",o:"no es",biz:"no somos",siz:"no sois/es",onlar:"no son"};
+const ES_SUJ={ben:"Yo",sen:"Tú",o:"Él/Ella",biz:"Nosotros",siz:"Usted/Vosotros",onlar:"Ellos/Ellas"};
+const PER_LABEL={ben:"Ben (yo)",sen:"Sen (tú)",o:"O (él/ella)",biz:"Biz (nosotros)",siz:"Siz",onlar:"Onlar"};
+function generar(){
+  const persona=document.getElementById("persona").value;
+  const a1=document.getElementById("adj1").value;
+  const a2=document.getElementById("adj2").value;
+  const sv=document.getElementById("sust").value;
+  if(!a1&&!a2&&!sv){alert("Elige al menos un adjetivo o una profesión.");return;}
+  const piezas=[];let fraseTr=[];let esPartes=[];
+  const adjs=[a1,a2].filter(Boolean);
+  adjs.forEach(adj=>{const lbl=ADJETIVOS.find(([v])=>v===adj)?.[1]||adj;piezas.push({token:adj,explicacion:`${lbl} (adjetivo)`,regla:"sin cambio — adjetivos no declinan"});fraseTr.push(adj);esPartes.push(lbl);});
+  if(sv){const lbl=PROFESIONES.find(([v])=>v===sv)?.[1]||sv;piezas.push({token:sv,explicacion:`${lbl} (sustantivo/profesión)`,regla:"raíz"});fraseTr.push(sv);esPartes.push(lbl);}
+  const palabraImek=sv||(adjs.length>0?adjs[adjs.length-1]:null);
+  if(!palabraImek)return;
+  fraseTr.pop();
+  const notas=[];
+  if(tipo==="afirm"){
+    const res=imek(palabraImek,persona);
+    fraseTr.push(res.forma);
+    if(res.muto){piezas.push({token:mutarRaiz(palabraImek),explicacion:`raíz mutada (${palabraImek[palabraImek.length-1]}→${MUTATION[palabraImek[palabraImek.length-1]]})`,regla:"ketçap-fıstıkçı şahap"});notas.push(`"${palabraImek}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);}
+    piezas.push({token:res.sufijo,explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`,regla:res.regla});
+    document.getElementById("frase-es").textContent=`"${ES_SUJ[persona]} ${ES_VERBO[persona]} ${esPartes.join(" y ")}"`;
+  }else{
+    fraseTr.push(palabraImek);
+    const neg=imekNeg(persona);
+    fraseTr.push(`değil${neg.sufijo}`);
+    piezas.push({token:"değil",explicacion:"negación (no)",regla:"invariable"});
+    piezas.push({token:neg.sufijo,explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`,regla:"armonía con 'i' de değil"});
+    document.getElementById("frase-es").textContent=`"${ES_SUJ[persona]} ${ES_NEG[persona]} ${esPartes.join(" y ")}"`;
+  }
+  if(adjs.length>0&&sv)notas.push("El adjetivo siempre va ANTES del sustantivo en turco.");
+  if(NO_MUTAR.has(palabraImek))notas.push(`"${palabraImek}" es un préstamo: la consonante final NO muta.`);
+  const tr=fraseTr.join(" ").replace(/ğ/g,"ğ(muda)").replace(/ş/g,"sh").replace(/ç/g,"ch").replace(/â/g,"a");
+  document.getElementById("frase-tr").textContent=fraseTr.join(" ");
+  document.getElementById("translit").textContent=`Pronunciación aprox.: ${tr}`;
+  const analDiv=document.getElementById("analisis");analDiv.innerHTML="";
+  piezas.forEach(p=>{const d=document.createElement("div");d.className="pieza";d.innerHTML=`<div class="token">${p.token}</div><div class="info"><strong>${p.explicacion}</strong>${p.regla?`<span class="tag">${p.regla}</span>`:""}</div>`;analDiv.appendChild(d);});
+  document.getElementById("nota-box").innerHTML=notas.length?`<div class="divider"></div><div class="nota">💡 ${notas.join(" ")}</div>`:"";
+  document.getElementById("resultado").style.display="block";
+  document.getElementById("resultado").scrollIntoView({behavior:"smooth"});
+}
 </script>
 </body>
 </html>
-    
