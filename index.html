@@ -63,6 +63,39 @@ button#generar { width:100%; background:#e63e3e; border:none; border-radius:10px
   <select id="sust"><option value="">— ninguno —</option></select>
 </div>
 <div class="card">
+  <span class="lbl">Conjunción (opcional)</span>
+  <select id="conjuncion">
+    <option value="">— ninguno —</option>
+    <option value="ama">ama — pero, no obstante</option>
+    <option value="ancak">ancak — pero, no obstante</option>
+    <option value="fakat">fakat — pero, no obstante</option>
+  </select>
+</div>
+<div class="card">
+  <span class="lbl">Adverbio demostrativo (opcional)</span>
+  <select id="adverbio">
+    <option value="">— ninguno —</option>
+    <option value="bu">bu — este/esta/esto</option>
+    <option value="şu">şu — ese/esa/eso</option>
+    <option value="o">o — aquel/aquella/aquello</option>
+    <option value="böyle">böyle — así, de esta manera</option>
+    <option value="şöyle">şöyle — así, de esa manera</option>
+    <option value="öyle">öyle — así, de aquella manera</option>
+  </select>
+</div>
+<div class="card">
+  <span class="lbl">Expresión de opinión (opcional)</span>
+  <select id="opinion">
+    <option value="">— ninguno —</option>
+    <option value="bence">bence — en mi opinión</option>
+    <option value="bizce">bizce — en nuestra opinión</option>
+    <option value="sence">sence — en tu opinión</option>
+    <option value="sizce">sizce — en vuestra/su opinión</option>
+    <option value="ona göre">ona göre — en su opinión (él/ella)</option>
+    <option value="onlara göre">onlara göre — en su opinión (ellos/ellas)</option>
+  </select>
+</div>
+<div class="card">
   <span class="lbl">Tipo de frase</span>
   <div class="toggle-row">
     <button class="toggle-btn active" id="btn-afirm" onclick="setTipo('afirm')">✓ Afirmativo</button>
@@ -82,13 +115,72 @@ button#generar { width:100%; background:#e63e3e; border:none; border-radius:10px
   <button class="btn-nueva" onclick="nueva()">← Nueva frase</button>
 </div>
 <script>
-const PROFESIONES=[["avukat","abogado/a"],["doktor","médico/a"],["öğretmen","profesor/a"],["öğrenci","estudiante"],["asker","soldado"],["aşçı","cocinero/a"],["bakkal","tendero/a"],["balıkçı","pescador/a"],["bankacı","banquero/a"],["berber","barbero"],["çiftçi","agricultor/a"],["çoban","pastor/a"],["elektrikçi","electricista"],["fırıncı","panadero/a"],["garson","camarero/a"],["gazeteci","periodista"],["gemici","marinero/a"],["hademe","conserje"],["hâkim","juez/a"],["hemşire","enfermero/a"],["hoca","maestro/a"],["işçi","obrero/a"],["kasap","carnicero/a"],["kuaför","peluquero/a"],["kuyumcu","joyero/a"],["manav","verdulero/a"],["marangoz","carpintero/a"],["müdür","director/a"],["oyuncu","actor/actriz"],["pilot","piloto/a"],["polis","policía"],["memur","funcionario/a"],["rehber","guía"],["ressam","pintor/a"],["sanatçı","artista"],["sekreter","secretario/a"],["şâir","poeta"],["tamirci","mecánico/a"],["teknisyen","técnico/a"],["tercüman","traductor/a"],["terzi","sastre/a"],["veteriner","veterinario/a"],["yazar","escritor/a"],["fıstıkçı","vendedor/a de pistachos"],["anne","madre"],["baba","padre"],["kardeş","hermano/a"],["arkadaş","amigo/a"]];
-const ADJETIVOS=[["atak","audaz"],["çekingen","tímido/a"],["becerikli","hábil"],["beceriksiz","torpe"],["çalışkan","trabajador/a"],["tembel","perezoso/a"],["dikkatli","prudente"],["dikkatsiz","imprudente"],["disiplinli","disciplinado/a"],["disiplinsiz","indisciplinado/a"],["güvenilir","confiable"],["güvenilmez","desconfiable"],["ikiyüzlü","hipócrita"],["samimi","sincero/a"],["kirli","sucio/a"],["temiz","limpio/a"],["özenli","cuidadoso/a"],["özensiz","descuidado/a"],["pasaklı","desaliñado/a"],["titiz","meticuloso/a"],["terbiyeli","educado/a"],["terbiyesiz","maleducado/a"],["anlayışlı","comprensivo/a"],["anlayışsız","incomprensivo/a"],["merhametli","compasivo/a"],["merhametsiz","despiadado/a"],["cömert","generoso/a"],["cimri","tacaño/a"],["kibirli","arrogante"],["mütevâzi","humilde"],["dürüst","honesto/a"],["sahtekar","estafador/a"],["cesur","valiente"],["korkak","cobarde"],["hızlı","rápido/a"],["yavaş","lento/a"],["yorgun","cansado/a"],["üzgün","triste"]];
+// NUEVOS SUSTANTIVOS
+const PROFESIONES = [
+  ["avukat","abogado/a"],["doktor","médico/a"],["öğretmen","profesor/a"],["öğrenci","estudiante"],["asker","soldado"],
+  ["aşçı","cocinero/a"],["bakkal","tendero/a"],["balıkçı","pescador/a"],["bankacı","banquero/a"],["berber","barbero"],
+  ["çiftçi","agricultor/a"],["çoban","pastor/a"],["elektrikçi","electricista"],["fırıncı","panadero/a"],["garson","camarero/a"],
+  ["gazeteci","periodista"],["gemici","marinero/a"],["hademe","conserje"],["hâkim","juez/a"],["hemşire","enfermero/a"],
+  ["hoca","maestro/a"],["işçi","obrero/a"],["kasap","carnicero/a"],["kuaför","peluquero/a"],["kuyumcu","joyero/a"],
+  ["manav","verdulero/a"],["marangoz","carpintero/a"],["müdür","director/a"],["oyuncu","actor/actriz"],["pilot","piloto/a"],
+  ["polis","policía"],["memur","funcionario/a"],["rehber","guía"],["ressam","pintor/a"],["sanatçı","artista"],
+  ["sekreter","secretario/a"],["şâir","poeta"],["tamirci","mecánico/a"],["teknisyen","técnico/a"],["tercüman","traductor/a"],
+  ["terzi","sastre/a"],["veteriner","veterinario/a"],["yazar","escritor/a"],["fıstıkçı","vendedor/a de pistachos"],
+  ["anne","madre"],["baba","padre"],["kardeş","hermano/a"],["arkadaş","amigo/a"],
+  // NUEVOS SUSTANTIVOS
+  ["telgraf","telégrafo"],["çarşaf","sábana"],["kılıf","funda/cubierta"],["sınıf","clase"],
+  ["sedef","nácar"],["şef","jefe/chef"],["târif","definición/descripción"],["keşif","descubrimiento/exploración"],
+  ["filozof","filósofo"],["yusuf","Yusuf (nombre)"],["tasarruf","ahorro"],["zülüf","mechón/rizo"],
+  ["küf","moho"],["makas","tijeras"],["elmas","diamante"],["şahıs","persona/individuo"],
+  ["mıknatıs","imán"],["nefes","aliento/respiración"],["patates","papa/patata"],["tesis","instalación/establecimiento"],
+  ["meclis","parlamento/asamblea"],["ağustos","agosto"],["kaos","caos"],["ulus","nación"],
+  ["yunus","delfín"],["göğüs","pecho"],["kaktüs","cactus"],["seyahat","viaje"],
+  ["mükâfat","recompensa/premio"],["kayıt","registro/inscripción"],["yakıt","combustible"],["millet","nación/pueblo"],
+  ["alet","herramienta/instrumento"],["kilit","cerradura/candado"],["ümit","esperanza"],["robot","robot"],
+  ["banknot","billete"],["umut","esperanza"],["vücut","cuerpo"],["söğüt","sauce"],
+  ["örgüt","organización"],["bacak","pierna"],["tabak","plato"],["kaşık","cuchara"],
+  ["tanık","testigo"],["yürek","corazón"],["ürkek","tímido/asustadizo"],["geyik","ciervo/venado"],
+  ["iplik","hilo"],["bangkok","Bangkok"],["barok","barroco"],["topuk","talón/tobillo"],
+  ["tavuk","pollo/gallina"],["önlük","delantal"],["çöplük","basurero/vertedero"],["kırbaç","látigo"],
+  ["kıskaç","pinza"],["başlangıç","comienzo/inicio"],["yargıç","juez"],["yengeç","cangrejo"],
+  ["süreç","proceso"],["sandviç","sándwich"],["piliç","polluelo/pollo joven"],["koç","carnero/entrenador"],
+  ["zangoç","sacristán"],["havuç","zanahoria"],["sonuç","resultado/consecuencia"],["güç","fuerza/poder"],
+  ["hörgüç","joroba"],["çağdaş","contemporáneo/moderno"],["yoldaş","compañero/camarada"],["barış","paz"],
+  ["alkış","aplauso"],["kardeş","hermano/hermana"],["ateş","fuego"],["direniş","resistencia"],
+  ["geçmiş","pasado"],["sarhoş","borracho"],["başıboş","vagabundo/sin rumbo"],["uçuş","vuelo"],
+  ["kuş","pájaro/ave"],["dövüş","pelea/lucha"],["görünüş","apariencia/aspecto"],["timsah","cocodrilo"],
+  ["seyyah","viajero"],["çarmıh","cruz"],["satıh","superficie"],["ebleh","necio/tonto"],
+  ["kadeh","copa"],["tercih","preferencia"],["fetih","conquista"],["ruh","alma/espíritu"],
+  ["sincap","ardilla"],["çap","diámetro"],["ayıp","vergüenza/deshonra"],["kayıp","pérdida/perdido"],
+  ["talep","demanda/solicitud"],["akrep","escorpión"],["prensip","principio"],["prototip","prototipo"],
+  ["mikrop","microbio"],["top","balón/pelota/cañón"],["mektup","carta"],["grup","grupo"],
+  ["kulüp","club"],["tüp","tubo"]
+];
+
+// ADJETIVOS (incluyendo los nuevos)
+const ADJETIVOS = [
+  ["atak","audaz"],["çekingen","tímido/a"],["becerikli","hábil"],["beceriksiz","torpe"],
+  ["çalışkan","trabajador/a"],["tembel","perezoso/a"],["dikkatli","prudente"],["dikkatsiz","imprudente"],
+  ["disiplinli","disciplinado/a"],["disiplinsiz","indisciplinado/a"],["güvenilir","confiable"],
+  ["güvenilmez","desconfiable"],["ikiyüzlü","hipócrita"],["samimi","sincero/a"],["kirli","sucio/a"],
+  ["temiz","limpio/a"],["özenli","cuidadoso/a"],["özensiz","descuidado/a"],["pasaklı","desaliñado/a"],
+  ["titiz","meticuloso/a"],["terbiyeli","educado/a"],["terbiyesiz","maleducado/a"],["anlayışlı","comprensivo/a"],
+  ["anlayışsız","incomprensivo/a"],["merhametli","compasivo/a"],["merhametsiz","despiadado/a"],
+  ["cömert","generoso/a"],["cimri","tacaño/a"],["kibirli","arrogante"],["mütevâzi","humilde"],
+  ["dürüst","honesto/a"],["sahtekar","estafador/a"],["cesur","valiente"],["korkak","cobarde"],
+  ["hızlı","rápido/a"],["yavaş","lento/a"],["yorgun","cansado/a"],["üzgün","triste"],
+  // NUEVOS ADJETIVOS
+  ["pek az","muy poco"],["çok az","muy poco"],["biraz","un poco"],["az","poco"],
+  ["yetersiz","insuficiente"],["yeterli","suficiente"],["çok","mucho"],["birçok","mucho (un montón)"],
+  ["pek çok","tanto"],["çok çok","tanto"],["ürkek","tímido/asustadizo"],["ebleh","necio/tonto"]
+];
+
 const VOWELS=new Set(["a","e","ı","i","o","ö","u","ü"]);
 const FRONT=new Set(["e","i","ö","ü"]);
 const KETCAP=new Set(["f","s","t","k","ç","ş","h","p"]);
 const MUTATION={p:"b",ç:"c",t:"d",k:"ğ"};
-const NO_MUTAR=new Set(["doktor","pilot","teknisyen","veteriner","sekreter","garson","kuaför","rehber","müdür","kasap"]);
+const NO_MUTAR=new Set(["doktor","pilot","teknisyen","veteriner","sekreter","garson","kuaför","rehber","müdür","kasap","filozof","yusuf","tasarruf","zülüf","küf","makas","elmas","şahıs","mıknatıs","nefes","patates","tesis","meclis","ağustos","kaos","ulus","yunus","göğüs","kaktüs","seyahat","mükâfat","kayıt","yakıt","millet","alet","kilit","ümit","robot","banknot","umut","vücut","söğüt","örgüt","bacak","tabak","kaşık","tanık","yürek","geyik","iplik","bangkok","barok","topuk","tavuk","önlük","çöplük","kırbaç","kıskaç","başlangıç","yargıç","yengeç","süreç","sandviç","piliç","koç","zangoç","havuç","sonuç","güç","hörgüç","çağdaş","yoldaş","barış","alkış","kardeş","ateş","direniş","geçmiş","sarhoş","başıboş","uçuş","kuş","dövüş","görünüş","timsah","seyyah","çarmıh","satıh","kadeh","tercih","fetih","ruh","sincap","çap","ayıp","kayıp","talep","akrep","prensip","prototip","mikrop","top","mektup","grup","kulüp","tüp"]);
+
 function lastVowel(w){for(let i=w.length-1;i>=0;i--)if(VOWELS.has(w[i]))return w[i];return"a";}
 function arm2(w){return FRONT.has(lastVowel(w))?"e":"a";}
 function arm4(w){const v=lastVowel(w);if(v==="a"||v==="ı")return"ı";if(v==="e"||v==="i")return"i";if(v==="o"||v==="u")return"u";return"ü";}
@@ -108,4 +200,326 @@ function imek(word,persona){
   }
 }
 function imekNeg(persona){const s={ben:"im",biz:"iz",sen:"sin",siz:"siniz",o:"dir",onlar:"dirler"};return{sufijo:s[persona]};}
-function poblar(id,lista){const sel=document.getElementById(id);lista.forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=`${v} — ${l}`;sel.appendChild(o);
+function poblar(id,lista){const sel=document.getElementById(id);lista.forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=`${v} — ${l}`;sel.appendChild(o);});}
+poblar("adj1",ADJETIVOS);poblar("adj2",ADJETIVOS);poblar("sust",PROFESIONES);
+let tipo="afirm";
+function setTipo(t){tipo=t;document.getElementById("btn-afirm").classList.toggle("active",t==="afirm");document.getElementById("btn-neg").classList.toggle("active",t==="neg");}
+function nueva(){document.getElementById("resultado").style.display="none";}
+const ES_VERBO={ben:"soy",sen:"eres",o:"es",biz:"somos",siz:"sois/es",onlar:"son"};
+const ES_NEG={ben:"no soy",sen:"no eres",o:"no es",biz:"no somos",siz:"no sois/es",onlar:"no son"};
+const ES_SUJ={ben:"Ben",sen:"Sen",o:"O",biz:"Biz",siz:"Siz",onlar:"Onlar"};
+const ES_SUJ_TRAD={ben:"Yo",sen:"Tú",o:"Él/Ella",biz:"Nosotros",siz:"Usted/Vosotros",onlar:"Ellos/Ellas"};
+const PER_LABEL={ben:"Ben (yo)",sen:"Sen (tú)",o:"O (él/ella)",biz:"Biz (nosotros)",siz:"Siz",onlar:"Onlar"};
+
+// Mapeo de conjunciones
+const CONJUNCIONES = {
+  "ama": "pero, no obstante",
+  "ancak": "pero, no obstante",
+  "fakat": "pero, no obstante"
+};
+
+// Mapeo de adverbios demostrativos
+const ADVERBIOS = {
+  "bu": "este/esta/esto",
+  "şu": "ese/esa/eso",
+  "o": "aquel/aquella/aquello",
+  "böyle": "así, de esta manera",
+  "şöyle": "así, de esa manera",
+  "öyle": "así, de aquella manera"
+};
+
+// Mapeo de expresiones de opinión
+const OPINIONES = {
+  "bence": "en mi opinión",
+  "bizce": "en nuestra opinión",
+  "sence": "en tu opinión",
+  "sizce": "en vuestra/su opinión",
+  "ona göre": "en su opinión (él/ella)",
+  "onlara göre": "en su opinión (ellos/ellas)"
+};
+
+function generar(){
+  const persona=document.getElementById("persona").value;
+  const a1=document.getElementById("adj1").value;
+  const a2=document.getElementById("adj2").value;
+  const sv=document.getElementById("sust").value;
+  const conj=document.getElementById("conjuncion").value;
+  const adv=document.getElementById("adverbio").value;
+  const opin=document.getElementById("opinion").value;
+  
+  // Si no hay adjetivos ni sustantivo, alertar
+  if(!a1&&!a2&&!sv){alert("Elige al menos un adjetivo o una profesión.");return;}
+  
+  const adjs=[a1,a2].filter(Boolean);
+  const piezas=[]; // Para análisis morfológico
+  let notas = [];
+  
+  // Pronombre en turco
+  const pronombre = ES_SUJ[persona];
+  const pronombreTrad = ES_SUJ_TRAD[persona];
+  
+  // Función para construir la parte inicial de la frase (pronombre + adverbio + opinión + adjetivos + sustantivo)
+  function construirInicio(adjetivos, sustantivo, incluirBir = true) {
+    let partes = [pronombre];
+    let esPartes = [pronombreTrad];
+    
+    // Añadir adverbio demostrativo si existe
+    if(adv) {
+      partes.push(adv);
+      esPartes.push(ADVERBIOS[adv]);
+      piezas.push({token:adv, explicacion:ADVERBIOS[adv], regla:"adverbio demostrativo"});
+    }
+    
+    // Añadir expresión de opinión si existe
+    if(opin) {
+      partes.push(opin);
+      esPartes.push(OPINIONES[opin]);
+      piezas.push({token:opin, explicacion:OPINIONES[opin], regla:"expresión de opinión"});
+    }
+    
+    // Añadir adjetivos
+    adjetivos.forEach((adj, index) => {
+      const lbl = ADJETIVOS.find(([v])=>v===adj)?.[1]||adj;
+      partes.push(adj);
+      esPartes.push(lbl);
+      piezas.push({token:adj, explicacion:`${lbl} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
+      
+      if(index < adjetivos.length - 1) {
+        partes.push("ve");
+        esPartes.push("y");
+        piezas.push({token:"ve", explicacion:"y", regla:"conjunción copulativa"});
+      }
+    });
+    
+    // Añadir sustantivo
+    if(sustantivo) {
+      const sustLbl = PROFESIONES.find(([v])=>v===sustantivo)?.[1]||sustantivo;
+      
+      if(adjetivos.length > 0 && incluirBir) {
+        partes.push("bir");
+        esPartes.push("un/una");
+        piezas.push({token:"bir", explicacion:"artículo indefinido", regla:"se usa con sustantivos cuando hay adjetivo"});
+      }
+      
+      partes.push(sustantivo);
+      esPartes.push(sustLbl);
+      piezas.push({token:sustantivo, explicacion:`${sustLbl} (sustantivo)`, regla:"raíz"});
+    }
+    
+    return { partes, esPartes };
+  }
+  
+  // --- CASO ESPECIAL: Dos adjetivos + sustantivo (frase con contraste) ---
+  if(adjs.length === 2 && sv) {
+    const adj1 = adjs[0];
+    const adj2 = adjs[1];
+    const lbl1 = ADJETIVOS.find(([v])=>v===adj1)?.[1]||adj1;
+    const lbl2 = ADJETIVOS.find(([v])=>v===adj2)?.[1]||adj2;
+    const sustLbl = PROFESIONES.find(([v])=>v===sv)?.[1]||sv;
+    
+    // Aplicar imek al sustantivo
+    const res1 = imek(sv, persona);
+    
+    // Construir parte 1: [pronombre] + [adverbio] + [opinión] + [adj1] + bir + [sustantivo+imek]
+    let parte1Parts = [pronombre];
+    let esParte1 = [pronombreTrad];
+    
+    if(adv) {
+      parte1Parts.push(adv);
+      esParte1.push(ADVERBIOS[adv]);
+      piezas.push({token:adv, explicacion:ADVERBIOS[adv], regla:"adverbio demostrativo"});
+    }
+    if(opin) {
+      parte1Parts.push(opin);
+      esParte1.push(OPINIONES[opin]);
+      piezas.push({token:opin, explicacion:OPINIONES[opin], regla:"expresión de opinión"});
+    }
+    
+    parte1Parts.push(adj1);
+    esParte1.push(lbl1);
+    piezas.push({token:adj1, explicacion:`${lbl1} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
+    
+    parte1Parts.push("bir");
+    esParte1.push("un/una");
+    piezas.push({token:"bir", explicacion:"artículo indefinido", regla:"se usa con sustantivos cuando hay adjetivo"});
+    
+    // El sustantivo ya viene con imek
+    parte1Parts.push(res1.forma);
+    esParte1.push(sustLbl + " con sufijo");
+    
+    const parte1 = parte1Parts.join(" ");
+    const esParte1Str = esParte1.join(" ");
+    
+    // Parte 2: [conjunción] + [adj2] + değil + imek(neg)
+    const neg = imekNeg(persona);
+    const conjunciónUsada = conj || "ama";
+    const conjLbl = CONJUNCIONES[conjunciónUsada] || "pero";
+    
+    const parte2Parts = [conjunciónUsada, adj2, "değil" + neg.sufijo];
+    const esParte2 = [conjLbl, lbl2, "no soy"];
+    
+    piezas.push({token:conjunciónUsada, explicacion:conjLbl, regla:"conjunción"});
+    piezas.push({token:adj2, explicacion:`${lbl2} (adjetivo)`, regla:"sin cambio — adjetivos no declinan"});
+    piezas.push({token:"değil", explicacion:"negación (no)", regla:"invariable"});
+    piezas.push({token:neg.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:"armonía con 'i' de değil"});
+    
+    const parte2 = parte2Parts.join(" ");
+    
+    // Frase completa
+    const fraseCompleta = parte1 + " " + parte2;
+    
+    // Notas
+    notas.push(`Frase con contraste: se usa "${conjunciónUsada}" para conectar una afirmación y una negación.`);
+    notas.push(`"bir" se usa entre el adjetivo y el sustantivo.`);
+    if(res1.muto) notas.push(`"${sv}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);
+    if(NO_MUTAR.has(sv)) notas.push(`"${sv}" es un préstamo: la consonante final NO muta.`);
+    if(adv) notas.push(`Adverbio demostrativo "${adv}" usado para señalar.`);
+    if(opin) notas.push(`Expresión de opinión "${opin}" usada.`);
+    
+    // Traducción
+    let esTraduccion = `"${esParte1Str} pero no soy ${lbl2}"`;
+    // Ajustar traducción según la persona
+    if(persona === "ben") esTraduccion = `"${esParte1Str} pero no soy ${lbl2}"`;
+    else if(persona === "sen") esTraduccion = `"${esParte1Str} pero no eres ${lbl2}"`;
+    else if(persona === "o") esTraduccion = `"${esParte1Str} pero no es ${lbl2}"`;
+    else if(persona === "biz") esTraduccion = `"${esParte1Str} pero no somos ${lbl2}"`;
+    else if(persona === "siz") esTraduccion = `"${esParte1Str} pero no sois ${lbl2}"`;
+    else esTraduccion = `"${esParte1Str} pero no son ${lbl2}"`;
+    
+    // Mostrar resultados
+    document.getElementById("frase-tr").textContent = fraseCompleta;
+    document.getElementById("frase-es").textContent = esTraduccion;
+    
+    // Transliteración
+    let translit = fraseCompleta;
+    translit = translit.replace(/ğ/g, "gh");
+    translit = translit.replace(/ş/g, "sh");
+    translit = translit.replace(/ç/g, "ch");
+    translit = translit.replace(/ö/g, "oe");
+    translit = translit.replace(/ü/g, "ue");
+    translit = translit.replace(/ı/g, "i");
+    document.getElementById("translit").textContent = `Pronunciación aprox.: ${translit}`;
+    
+    // Mostrar análisis
+    const analDiv=document.getElementById("analisis");
+    analDiv.innerHTML="";
+    piezas.forEach(p=>{
+      const d=document.createElement("div");
+      d.className="pieza";
+      d.innerHTML=`<div class="token">${p.token}</div><div class="info"><strong>${p.explicacion}</strong>${p.regla?`<span class="tag">${p.regla}</span>`:""}</div>`;
+      analDiv.appendChild(d);
+    });
+    
+    document.getElementById("nota-box").innerHTML=notas.length?`<div class="divider"></div><div class="nota">💡 ${notas.join(" ")}</div>`:"";
+    document.getElementById("resultado").style.display="block";
+    document.getElementById("resultado").scrollIntoView({behavior:"smooth"});
+    return;
+  }
+  
+  // --- CASO NORMAL (un adjetivo o solo sustantivo) ---
+  let palabraImek = sv || (adjs.length > 0 ? adjs[adjs.length-1] : null);
+  if(!palabraImek) return;
+  
+  // Construir grupo nominal
+  const inicio = construirInicio(adjs, sv, true);
+  const grupoStr = inicio.partes.join(" ");
+  const grupoEsStr = inicio.esPartes.join(" ");
+  
+  // Aplicar imek
+  if(tipo === "afirm") {
+    const res = imek(palabraImek, persona);
+    
+    // Construir frase: [inicio] + [imek]
+    // Pero cuidado: si ya incluimos el sustantivo en inicio, solo añadimos el sufijo
+    // Si no hay sustantivo, añadimos la forma completa
+    let formaFinal;
+    if(sv) {
+      // El sustantivo ya está en inicio, solo añadimos el sufijo
+      // Pero necesitamos reemplazar el sustantivo por el sustantivo+imek
+      const partes = inicio.partes;
+      const idxSust = partes.lastIndexOf(sv);
+      if(idxSust !== -1) {
+        partes[idxSust] = res.forma;
+        formaFinal = partes.join(" ");
+      } else {
+        formaFinal = grupoStr + " " + res.forma;
+      }
+    } else {
+      // Solo adjetivos, añadir imek al último adjetivo
+      const res2 = imek(palabraImek, persona);
+      const partes = inicio.partes;
+      const idxAdj = partes.lastIndexOf(palabraImek);
+      if(idxAdj !== -1) {
+        partes[idxAdj] = res2.forma;
+        formaFinal = partes.join(" ");
+      } else {
+        formaFinal = grupoStr + " " + res2.forma;
+      }
+      // Añadir el sufijo al análisis
+      piezas.push({token:res2.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:res2.regla});
+    }
+    
+    if(res.muto) notas.push(`"${palabraImek}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);
+    
+    const esTraduccion = `"${pronombreTrad} ${ES_VERBO[persona]} ${grupoEsStr}"`;
+    document.getElementById("frase-tr").textContent = formaFinal;
+    document.getElementById("frase-es").textContent = esTraduccion;
+  } else {
+    // Negativo
+    const neg = imekNeg(persona);
+    let formaFinal;
+    if(sv) {
+      const partes = inicio.partes;
+      const idxSust = partes.lastIndexOf(sv);
+      if(idxSust !== -1) {
+        partes[idxSust] = sv;
+        formaFinal = partes.join(" ") + " değil" + neg.sufijo;
+      } else {
+        formaFinal = grupoStr + " değil" + neg.sufijo;
+      }
+    } else {
+      formaFinal = grupoStr + " değil" + neg.sufijo;
+    }
+    
+    piezas.push({token:"değil", explicacion:"negación (no)", regla:"invariable"});
+    piezas.push({token:neg.sufijo, explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`, regla:"armonía con 'i' de değil"});
+    
+    const esTraduccion = `"${pronombreTrad} ${ES_NEG[persona]} ${grupoEsStr}"`;
+    document.getElementById("frase-tr").textContent = formaFinal;
+    document.getElementById("frase-es").textContent = esTraduccion;
+  }
+  
+  // Notas adicionales
+  if(adjs.length > 0 && sv) notas.push("El adjetivo va ANTES del sustantivo en turco.");
+  if(NO_MUTAR.has(palabraImek)) notas.push(`"${palabraImek}" es un préstamo: la consonante final NO muta.`);
+  if(adv) notas.push(`Adverbio demostrativo "${adv}" usado.`);
+  if(opin) notas.push(`Expresión de opinión "${opin}" usada.`);
+  
+  // Transliteración
+  const fraseCompleta = document.getElementById("frase-tr").textContent;
+  let translit = fraseCompleta;
+  translit = translit.replace(/ğ/g, "gh");
+  translit = translit.replace(/ş/g, "sh");
+  translit = translit.replace(/ç/g, "ch");
+  translit = translit.replace(/ö/g, "oe");
+  translit = translit.replace(/ü/g, "ue");
+  translit = translit.replace(/ı/g, "i");
+  document.getElementById("translit").textContent = `Pronunciación aprox.: ${translit}`;
+  
+  // Mostrar análisis
+  const analDiv=document.getElementById("analisis");
+  analDiv.innerHTML="";
+  piezas.forEach(p=>{
+    const d=document.createElement("div");
+    d.className="pieza";
+    d.innerHTML=`<div class="token">${p.token}</div><div class="info"><strong>${p.explicacion}</strong>${p.regla?`<span class="tag">${p.regla}</span>`:""}</div>`;
+    analDiv.appendChild(d);
+  });
+  
+  document.getElementById("nota-box").innerHTML=notas.length?`<div class="divider"></div><div class="nota">💡 ${notas.join(" ")}</div>`:"";
+  document.getElementById("resultado").style.display="block";
+  document.getElementById("resultado").scrollIntoView({behavior:"smooth"});
+}
+</script>
+</body>
+</html>
