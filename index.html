@@ -53,6 +53,16 @@ button#generar { width:100%; background:#e63e3e; border:none; border-radius:10px
   </select>
 </div>
 <div class="card">
+  <span class="lbl">Conectores (opcional)</span>
+  <select id="conector">
+    <option value="">— ninguno —</option>
+    <option value="ve">ve — y</option>
+    <option value="ama">ama — pero</option>
+    <option value="çok">çok — muy</option>
+    <option value="çok ama">çok ama — muy pero</option>
+  </select>
+</div>
+<div class="card">
   <span class="lbl">Adjetivo 1 (opcional)</span>
   <select id="adj1"><option value="">— ninguno —</option></select>
   <span class="lbl" style="margin-top:10px">Adjetivo 2 (opcional)</span>
@@ -117,15 +127,79 @@ const ES_VERBO={ben:"soy",sen:"eres",o:"es",biz:"somos",siz:"sois/es",onlar:"son
 const ES_NEG={ben:"no soy",sen:"no eres",o:"no es",biz:"no somos",siz:"no sois/es",onlar:"no son"};
 const ES_SUJ={ben:"Yo",sen:"Tú",o:"Él/Ella",biz:"Nosotros",siz:"Usted/Vosotros",onlar:"Ellos/Ellas"};
 const PER_LABEL={ben:"Ben (yo)",sen:"Sen (tú)",o:"O (él/ella)",biz:"Biz (nosotros)",siz:"Siz",onlar:"Onlar"};
+// Mapa de conectores con su significado en español y regla
+const CONECTORES_INFO = {
+  "ve": {es: "y", regla: "conjunción copulativa"},
+  "ama": {es: "pero", regla: "conjunción adversativa"},
+  "çok": {es: "muy", regla: "adverbio de intensidad"},
+  "çok ama": {es: "muy pero", regla: "expresión enfática"}
+};
+
 function generar(){
   const persona=document.getElementById("persona").value;
   const a1=document.getElementById("adj1").value;
   const a2=document.getElementById("adj2").value;
   const sv=document.getElementById("sust").value;
+  const conector=document.getElementById("conector").value;
   if(!a1&&!a2&&!sv){alert("Elige al menos un adjetivo o una profesión.");return;}
   const piezas=[];let fraseTr=[];let esPartes=[];
   const adjs=[a1,a2].filter(Boolean);
-  adjs.forEach(adj=>{const lbl=ADJETIVOS.find(([v])=>v===adj)?.[1]||adj;piezas.push({token:adj,explicacion:`${lbl} (adjetivo)`,regla:"sin cambio — adjetivos no declinan"});fraseTr.push(adj);esPartes.push(lbl);});
+  
+  // Añadir conector si existe
+  let conectorInfo = null;
+  if(conector) {
+    conectorInfo = CONECTORES_INFO[conector];
+    piezas.push({token:conector,explicacion:conectorInfo.es,regla:conectorInfo.regla});
+    if(conector === "ve") {
+      // "ve" va entre los elementos
+    } else {
+      // "ama", "çok", "çok ama" van al inicio o antes del adjetivo
+      if(conector === "ama") {
+        fraseTr.push(conector);
+        esPartes.push("pero");
+      } else if(conector === "çok") {
+        // "çok" va antes del primer adjetivo
+      } else if(conector === "çok ama") {
+        // "çok ama" va antes del primer adjetivo
+      }
+    }
+  }
+  
+  adjs.forEach((adj,index)=>{
+    const lbl=ADJETIVOS.find(([v])=>v===adj)?.[1]||adj;
+    // Si hay conector "ve" y no es el primer adjetivo, añadirlo
+    if(conector === "ve" && index > 0) {
+      piezas.push({token:"ve",explicacion:"y",regla:"conjunción copulativa"});
+      fraseTr.push("ve");
+      esPartes.push("y");
+    }
+    piezas.push({token:adj,explicacion:`${lbl} (adjetivo)`,regla:"sin cambio — adjetivos no declinan"});
+    fraseTr.push(adj);
+    esPartes.push(lbl);
+  });
+  
+  // Si hay conector "çok" o "çok ama" y hay adjetivos, ponerlo antes del primer adjetivo
+  if(conector === "çok" && adjs.length > 0) {
+    // Insertar "çok" antes del primer adjetivo en el análisis y en la frase
+    const primerAdj = adjs[0];
+    const idx = fraseTr.indexOf(primerAdj);
+    if(idx !== -1) {
+      fraseTr.splice(idx, 0, "çok");
+      // Insertar en piezas también
+      piezas.splice(1, 0, {token:"çok",explicacion:"muy",regla:"adverbio de intensidad"});
+    }
+  }
+  if(conector === "çok ama" && adjs.length > 0) {
+    const primerAdj = adjs[0];
+    const idx = fraseTr.indexOf(primerAdj);
+    if(idx !== -1) {
+      fraseTr.splice(idx, 0, "çok", "ama");
+      // Insertar en piezas también
+      piezas.splice(1, 0, {token:"çok",explicacion:"muy",regla:"adverbio de intensidad"});
+      piezas.splice(2, 0, {token:"ama",explicacion:"pero",regla:"conjunción adversativa"});
+    }
+  }
+  
   if(sv){const lbl=PROFESIONES.find(([v])=>v===sv)?.[1]||sv;piezas.push({token:sv,explicacion:`${lbl} (sustantivo/profesión)`,regla:"raíz"});fraseTr.push(sv);esPartes.push(lbl);}
   const palabraImek=sv||(adjs.length>0?adjs[adjs.length-1]:null);
   if(!palabraImek)return;
@@ -136,20 +210,64 @@ function generar(){
     fraseTr.push(res.forma);
     if(res.muto){piezas.push({token:mutarRaiz(palabraImek),explicacion:`raíz mutada (${palabraImek[palabraImek.length-1]}→${MUTATION[palabraImek[palabraImek.length-1]]})`,regla:"ketçap-fıstıkçı şahap"});notas.push(`"${palabraImek}" termina en consonante del grupo FISTIKÇI ŞAHAP: muta antes del sufijo vocal.`);}
     piezas.push({token:res.sufijo,explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`,regla:res.regla});
-    document.getElementById("frase-es").textContent=`"${ES_SUJ[persona]} ${ES_VERBO[persona]} ${esPartes.join(" y ")}"`;
+    let parteEs = esPartes.join(" y ");
+    if(conector === "ve" && adjs.length > 1) {
+      // Ya está manejado con los "y" entre elementos
+      parteEs = esPartes.join(" y ");
+    } else if(conector === "ama") {
+      parteEs = `pero ${esPartes.join(" y ")}`;
+    } else if(conector === "çok") {
+      parteEs = `muy ${esPartes.join(" y ")}`;
+    } else if(conector === "çok ama") {
+      parteEs = `muy pero ${esPartes.join(" y ")}`;
+    }
+    // Construir la parte inicial con el sujeto
+    let sujetoTexto = ES_SUJ[persona];
+    let verboTexto = ES_VERBO[persona];
+    // Si hay conector "ama", la construcción cambia
+    if(conector === "ama") {
+      // "ama" generalmente se usa para contrastar, pero aquí lo mantenemos simple
+    }
+    document.getElementById("frase-es").textContent = `"${sujetoTexto} ${verboTexto} ${parteEs}"`;
   }else{
     fraseTr.push(palabraImek);
     const neg=imekNeg(persona);
     fraseTr.push(`değil${neg.sufijo}`);
     piezas.push({token:"değil",explicacion:"negación (no)",regla:"invariable"});
     piezas.push({token:neg.sufijo,explicacion:`sufijo İMEK para ${PER_LABEL[persona]}`,regla:"armonía con 'i' de değil"});
-    document.getElementById("frase-es").textContent=`"${ES_SUJ[persona]} ${ES_NEG[persona]} ${esPartes.join(" y ")}"`;
+    let parteEs = esPartes.join(" y ");
+    if(conector === "ve" && adjs.length > 1) {
+      parteEs = esPartes.join(" y ");
+    } else if(conector === "ama") {
+      parteEs = `pero ${esPartes.join(" y ")}`;
+    } else if(conector === "çok") {
+      parteEs = `muy ${esPartes.join(" y ")}`;
+    } else if(conector === "çok ama") {
+      parteEs = `muy pero ${esPartes.join(" y ")}`;
+    }
+    document.getElementById("frase-es").textContent = `"${ES_SUJ[persona]} ${ES_NEG[persona]} ${parteEs}"`;
   }
   if(adjs.length>0&&sv)notas.push("El adjetivo siempre va ANTES del sustantivo en turco.");
   if(NO_MUTAR.has(palabraImek))notas.push(`"${palabraImek}" es un préstamo: la consonante final NO muta.`);
-  const tr=fraseTr.join(" ").replace(/ğ/g,"ğ(muda)").replace(/ş/g,"sh").replace(/ç/g,"ch").replace(/â/g,"a");
-  document.getElementById("frase-tr").textContent=fraseTr.join(" ");
-  document.getElementById("translit").textContent=`Pronunciación aprox.: ${tr}`;
+  if(conector === "ve" && adjs.length > 1) notas.push("'Ve' conecta elementos del mismo tipo (adjetivos).");
+  if(conector === "ama") notas.push("'Ama' introduce una oposición o contraste.");
+  if(conector === "çok") notas.push("'Çok' intensifica el adjetivo que le sigue.");
+  if(conector === "çok ama") notas.push("'Çok ama' es una expresión enfática que refuerza el adjetivo.");
+  
+  // Transliteración mejorada (sin cambiar la pronunciación, solo mostrar la palabra)
+  const tr = fraseTr.join(" ");
+  document.getElementById("frase-tr").textContent = fraseTr.join(" ");
+  
+  // Transliteración con caracteres especiales para pronunciación aproximada
+  let translit = tr;
+  translit = translit.replace(/ç/g, "ch");
+  translit = translit.replace(/ğ/g, "gh");
+  translit = translit.replace(/ş/g, "sh");
+  translit = translit.replace(/ö/g, "oe");
+  translit = translit.replace(/ü/g, "ue");
+  translit = translit.replace(/ı/g, "i");
+  document.getElementById("translit").textContent = `Pronunciación aprox.: ${translit}`;
+  
   const analDiv=document.getElementById("analisis");analDiv.innerHTML="";
   piezas.forEach(p=>{const d=document.createElement("div");d.className="pieza";d.innerHTML=`<div class="token">${p.token}</div><div class="info"><strong>${p.explicacion}</strong>${p.regla?`<span class="tag">${p.regla}</span>`:""}</div>`;analDiv.appendChild(d);});
   document.getElementById("nota-box").innerHTML=notas.length?`<div class="divider"></div><div class="nota">💡 ${notas.join(" ")}</div>`:"";
